@@ -1,2 +1,11 @@
-# shopline-zambia
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+)# shopline-zambia
 Buy &amp; Sell marketplace app for African countries
