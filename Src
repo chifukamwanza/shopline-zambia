@@ -1,0 +1,7 @@
+shopline-zambia/
+  ├── index.html
+  ├── Src/
+  │    ├── main.jsx   ← lowercase m
+  │    ├── App.jsx
+  │    └── index.css  ← lowercase i
+  └── README.md
