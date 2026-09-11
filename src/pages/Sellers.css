@@ -1,0 +1,95 @@
+.sellers-page {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.sellers-page h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+  color: #333;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 40px;
+}
+
+.sellers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.seller-card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.seller-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.seller-icon {
+  font-size: 60px;
+  margin-bottom: 15px;
+}
+
+.seller-card h3 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.stars {
+  color: #ffd700;
+  font-size: 18px;
+}
+
+.rating-value {
+  color: #667eea;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.products-count {
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.seller-card .btn {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .sellers-page h1 {
+    font-size: 24px;
+  }
+
+  .sellers-grid {
+    gap: 15px;
+  }
+
+  .seller-icon {
+    font-size: 48px;
+  }
+
+  .seller-card h3 {
+    font-size: 18px;
+  }
+}
