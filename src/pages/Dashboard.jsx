@@ -1,7 +1,4 @@
-import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
-import './Dashboard.css'
-
+import { useState, useEffect } from 'reactdhdh
 // YOUR SUPABASE CONNECTION
 const supabaseUrl = 'https://kfusttbmgbxklwnexdyk.supabase.co'
 const supabaseKey = 'sb_publishable_XGyHpQhM0l2YLZPrQSqSSg_I0axJuXd'
@@ -62,7 +59,99 @@ return (
       <div className="dashboard-section">
         <div className="section-header">
           <h2>Your Products</h2>
-          <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+          <button classNameimport { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
+
+export default function Dashboard() {
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({ name: '', price: '', sales: 0 })
+
+  // Load products from Supabase
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  async function fetchProducts() {
+    setLoading(true)
+    const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false })
+    if (error) console.error(error)
+    else setProducts(data)
+    setLoading(false)
+  }
+
+  // Handle form submit
+  async function handleSubmit(e) {
+    e.preventDefault()
+    const newProduct = { 
+      name: form.name, 
+      price: parseFloat(form.price), 
+      sales: parseInt(form.sales) || 0 
+    }
+    
+    const { error } = await supabase.from('producimport { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
+
+export default function Dashboard() {
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({ name: '', price: '', sales: 0 })
+
+  // Load products from Supabase
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  async function fetchProducts() {
+    setLoading(true)
+    const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false })
+    if (error) console.error(error)
+    else setProducts(data)
+    setLoading(false)
+  }
+
+  // Handle form submit
+  async function handleSubmit(e) {
+    e.preventDefault()
+    const newProduct = { 
+      name: form.name, 
+      price: parseFloat(form.price), 
+      sales: parseInt(form.sales) || 0 
+    }
+    
+    const { error } = await supabase.from('products').insert([newProduct])
+    if (error) {
+      alert('Error: ' + error.message)
+    } else {
+      alert('Product Added!')
+      setForm({ name: '', price: '', sales: 0 })
+      setShowForm(false)
+      fetchProducts()
+    }
+  }
+
+  return (
+    <div className="dashboard">
+      <div className="dashboard-header">
+        <h1>Shopline Zambia Dashboard</h1>
+        <button onClick={() => setShowForm(!showForm)} className="ts').insert([newProduct])
+    if (error) {
+      alert('Error: ' + error.message)
+    } else {
+      alert('Product Added!')
+      setForm({ name: '', price: '', sales: 0 })
+      setShowForm(false)
+      fetchProducts()
+    }
+  }
+
+  return (
+    <div className="dashboard">
+      <div className="dashboard-header">
+        <h1>Shopline Zambia Dashboard</h1>
+        <button onClick={() => setShowForm(!showForm)} className="="btn btn-primary" onClick={() => setShowForm(!showForm)}>
             {showForm? 'Cancel' : '+ Add Product'}
           </button>
         </div>
