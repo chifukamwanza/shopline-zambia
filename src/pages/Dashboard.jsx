@@ -89,5 +89,4 @@ export default function Dashboard() {
         </div>
       ) : (<p>No products yet. Add your first product!</p>)}
     </div>
-  )
-    }
+  )}
