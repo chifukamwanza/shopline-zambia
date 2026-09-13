@@ -51,3 +51,39 @@ export default function Dashboard() {
 
   const totalSales = products.reduce((sum, p) => sum + (p.sales || 0), 0)
   const totalRevenue = products.reduce((sum, p) => sum + ((p.price || 0) * (p.sales || 0)), 0)
+return (
+    <div className="dashboard-page">
+      <h1>Seller Dashboard</h1>
+      <div className="stats">
+        <div className="stat-card"><h3>Total Products</h3><p className="stat-value">{products.length}</p></div>
+        <div className="stat-card"><h3>Total Sales</h3><p className="stat-value">{totalSales}</p></div>
+        <div className="stat-card"><h3>Revenue</h3><p className="stat-value">ZMW {totalRevenue.toFixed(2)}</p></div>
+      </div>
+      <div className="dashboard-section">
+        <div className="section-header">
+          <h2>Your Products</h2>
+          <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+            {showForm? 'Cancel' : '+ Add Product'}
+          </button>
+        </div>
+        {showForm && (
+          <form className="product-form" onSubmit={handleSubmit}>
+            <div className="form-group"><label>Product Name</label><input type="text" name="name" value={formData.name} onChange={handleInputChange} required /></div>
+            <div className="form-row">
+              <div className="form-group"><label>Price (ZMW)</label><input type="number" name="price" value={formData.price} onChange={handleInputChange} step="0.01" required /></div>
+              <div className="form-group"><label>Category</label><select name="category" value={formData.category} onChange={handleInputChange}>
+                <option value="crafts">Crafts</option><option value="food">Food</option><option value="beauty">Beauty</option><option value="fashion">Fashion</option>
+              </select></div>
+            </div>
+            <div className="form-group"><label>Description</label><textarea name="description" value={formData.description} onChange={handleInputChange} rows="4"></textarea></div>
+            <button type="submit" className="btn btn-primary btn-large">List Product</button>
+          </form>
+        )}
+        {loading? <p>Loading...</p> : products.length > 0? (
+          <div className="products-table"><table><thead><tr><th>Product</th><th>Price</th><th>Sales</th><th>Revenue</th></tr></thead>
+          <tbody>{products.map(p => (<tr key={p.id}><td>{p.name}</td><td>ZMW {p.price}</td><td>{p.sales}</td><td>ZMW {((p.price || 0) * (p.sales || 0)).toFixed(2)}</td></tr>))}</tbody></table></div>
+        ) : (<p>No products yet. Add your first product!</p>)}
+      </div>
+    </div>
+  )
+                                                        }
