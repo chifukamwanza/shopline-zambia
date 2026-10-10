@@ -26,6 +26,12 @@ function App() {
     }
   }
 
+  async function deleteProduct(id) {
+    if(!confirm('Delete this product?')) return
+    const { error } = await supabase.from('products').delete().eq('id', id)
+    if(!error) fetchProducts()
+  }
+
   if(page === 'home') {
     return (
       <div className="home-container">
@@ -86,11 +92,12 @@ function App() {
             <th>Price</th>
             <th>Sales</th>
             <th>Revenue</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {products.length === 0 ? (
-            <tr><td colSpan="4" style={{textAlign:'center', color:'#9ca3af', padding:'30px'}}>No products yet. Click + Add Product</td></tr>
+            <tr><td colSpan="5" style={{textAlign:'center', color:'#9ca3af', padding:'30px'}}>No products yet. Click + Add Product</td></tr>
           ) : (
             products.map(p => (
               <tr key={p.id}>
@@ -98,6 +105,7 @@ function App() {
                 <td><span className="price">ZMW {p.price}</span></td>
                 <td>{p.sales || 0}</td>
                 <td>ZMW {p.revenue || '0.00'}</td>
+                <td><button onClick={() => deleteProduct(p.id)} style={{background:'#fee2e2', color:'#dc2626', border:'none', padding:'6px 12px', borderRadius:'8px', fontSize:'12px', cursor:'pointer', fontWeight:'600'}}>🗑️ Delete</button></td>
               </tr>
             ))
           )}
