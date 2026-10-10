@@ -32,6 +32,12 @@ function App() {
     if(!error) fetchProducts()
   }
 
+  function orderWhatsApp(pName, pPrice) {
+    const phone = "260970000000" // CHANGE THIS TO YOUR NUMBER
+    const msg = `Hello! I want to order ${pName} for ZMW ${pPrice} from Shopline Zambia 🇿🇲`
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
+
   if(page === 'home') {
     return (
       <div className="home-container">
@@ -68,19 +74,8 @@ function App() {
 
       {showForm && (
         <form onSubmit={addProduct} style={{background:'white', padding:'20px', borderRadius:'16px', marginBottom:'20px', boxShadow:'0 4px 20px rgba(0,0,0,0.06)', display:'flex', gap:'10px', flexWrap:'wrap'}}>
-          <input 
-            value={name} 
-            onChange={e=>setName(e.target.value)} 
-            placeholder="Product name e.g. Tecno Spark" 
-            required 
-            style={{padding:'12px', borderRadius:'10px', border:'1px solid #e5e7eb', width:'220px'}}/>
-          <input 
-            value={price} 
-            onChange={e=>setPrice(e.target.value)} 
-            placeholder="Price ZMW" 
-            type="number" 
-            required 
-            style={{padding:'12px', borderRadius:'10px', border:'1px solid #e5e7eb', width:'140px'}}/>
+          <input value={name} onChange={e=>setName(e.target.value)} placeholder="Product name" required style={{padding:'12px', borderRadius:'10px', border:'1px solid #e5e7eb', width:'220px'}}/>
+          <input value={price} onChange={e=>setPrice(e.target.value)} placeholder="Price ZMW" type="number" required style={{padding:'12px', borderRadius:'10px', border:'1px solid #e5e7eb', width:'140px'}}/>
           <button type="submit">Save Product</button>
         </form>
       )}
@@ -91,24 +86,20 @@ function App() {
             <th>Product</th>
             <th>Price</th>
             <th>Sales</th>
-            <th>Revenue</th>
-            <th>Action</th>
+            <th>WhatsApp</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody>
-          {products.length === 0 ? (
-            <tr><td colSpan="5" style={{textAlign:'center', color:'#9ca3af', padding:'30px'}}>No products yet. Click + Add Product</td></tr>
-          ) : (
-            products.map(p => (
-              <tr key={p.id}>
-                <td>{p.name}</td>
-                <td><span className="price">ZMW {p.price}</span></td>
-                <td>{p.sales || 0}</td>
-                <td>ZMW {p.revenue || '0.00'}</td>
-                <td><button onClick={() => deleteProduct(p.id)} style={{background:'#fee2e2', color:'#dc2626', border:'none', padding:'6px 12px', borderRadius:'8px', fontSize:'12px', cursor:'pointer', fontWeight:'600'}}>🗑️ Delete</button></td>
-              </tr>
-            ))
-          )}
+          {products.map(p => (
+            <tr key={p.id}>
+              <td>{p.name}</td>
+              <td><span className="price">ZMW {p.price}</span></td>
+              <td>{p.sales || 0}</td>
+              <td><button onClick={() => orderWhatsApp(p.name, p.price)} style={{background:'#25D366', color:'white', border:'none', padding:'6px 12px', borderRadius:'8px', fontSize:'12px', cursor:'pointer', fontWeight:'600'}}>💬 Order</button></td>
+              <td><button onClick={() => deleteProduct(p.id)} style={{background:'#fee2e2', color:'#dc2626', border:'none', padding:'6px 12px', borderRadius:'8px', fontSize:'12px', cursor:'pointer', fontWeight:'600'}}>🗑️ Delete</button></td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
