@@ -28,7 +28,7 @@ function App() {
   }
 
   function orderWhatsApp(pName, pPrice) {
-    const phone = "260970000000" // CHANGE TO YOUR NUMBER
+    const phone = "260970757906" // CHANGE TO YOUR NUMBER
     const msg = `Hello! I want to order ${pName} for ZMW ${pPrice} from Shopline Zambia 🇿🇲`
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank')
   }
