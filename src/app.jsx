@@ -121,4 +121,57 @@ export default function App(){
             <p style={{fontSize:11,color:'#666'}}>As {u?.email}</p>
             <form onSubmit={add} style={{display:'grid',gap:8,background:'#fff',padding:12,borderRadius:12}}>
               <input value={nm} onChange={x=>setNm(x.target.value)} placeholder='Product e.g. iPhone 13' required style={{padding:10,border:'1px solid #ddd',borderRadius:8}}/>
-              <input value={pc} onChange={
+              <input value={pc} onChange={x=>setPc(x.target.value)} placeholder='Price K' type='number' required style={{padding:10,border:'1px solid #ddd',borderRadius:8}}/>
+              <textarea value={desc} onChange={x=>setDesc(x.target.value)} placeholder='Description e.g. Neat, 1 year used, with box...' rows={3} required style={{padding:10,border:'1px solid #ddd',borderRadius:8}}></textarea>
+              <div style={{border:'2px dashed #16a34a',borderRadius:8,padding:10,textAlign:'center'}}>
+                <input type='file' accept='image/*' onChange={uploadFile}/>
+                <div style={{fontSize:11}}>{uping?'Uploading...':im?'✅ Photo ready':'📸 Upload photo'}</div>
+                {im && <img src={im} style={{width:'100%',height:100,objectFit:'cover',marginTop:6}}/>}
+              </div>
+              <input value={ph} onChange={x=>setPh(x.target.value)} placeholder='WhatsApp 260...' required style={{padding:10,border:'1px solid #ddd',borderRadius:8}}/>
+              <div style={{display:'flex',gap:6}}>
+                <select value={prov} onChange={x=>setProv(x.target.value)} style={{padding:10,border:'1px solid #ddd',borderRadius:8,flex:1}}><option>Lusaka</option><option>Copperbelt</option><option>Central</option><option>Southern</option><option>Eastern</option><option>Northern</option><option>Western</option><option>North-Western</option><option>Luapula</option><option>Muchinga</option></select>
+                <input value={loc} onChange={x=>setLoc(x.target.value)} placeholder='Town' style={{padding:10,border:'1px solid #ddd',borderRadius:8,flex:1}}/>
+              </div>
+              <select value={pay} onChange={x=>setPay(x.target.value)} style={{padding:10,border:'1px solid #ddd',borderRadius:8}}><option>Cash</option><option>M-Pesa</option><option>Airtel Money</option><option>Bank</option></select>
+              <button disabled={!im||uping} style={{background:!im?'#9ca3af':'#16a34a',color:'#fff',padding:12,borderRadius:8,border:0,fontWeight:900}}>Publish Free</button>
+            </form>
+            <button onClick={()=>setPg('home')} style={{marginTop:10,width:'100%',background:'#eee',border:0,padding:8,borderRadius:8}}>← Back</button>
+          </div>
+        </div>
+      )}
+
+      {pg==='auth' && (
+        <div style={{padding:20}}>
+          <div style={{maxWidth:380,margin:'0 auto',background:'#fff',padding:16,borderRadius:16}}>
+            <h3 style={{textAlign:'center'}}>Join Shopline - Free</h3>
+            <div style={{display:'flex',gap:6,justifyContent:'center',marginBottom:10}}>
+              <button onClick={()=>setMode('email')} style={{padding:'6px 12px',borderRadius:999,border:'1px solid #ddd',background:mode==='email'?'#16a34a':'#fff',color:mode==='email'?'#fff':'#333',fontWeight:700}}>Email</button>
+              <button onClick={()=>setMode('phone')} style={{padding:'6px 12px',borderRadius:999,border:'1px solid #ddd',background:mode==='phone'?'#16a34a':'#fff',color:mode==='phone'?'#fff':'#333',fontWeight:700}}>Phone</button>
+            </div>
+            {mode==='email' && (
+              <div>
+                <input value={e} onChange={x=>setE(x.target.value)} placeholder='Email' style={{padding:10,borderRadius:8,border:'1px solid #ddd',width:'90%'}}/>
+                <div style={{position:'relative',marginTop:8,width:'96%'}}>
+                  <input value={pw} onChange={x=>setPw(x.target.value)} placeholder='Create password' type={showPw?'text':'password'} style={{padding:'10px 40px 10px 10px',borderRadius:8,border:'1px solid #ddd',width:'100%',boxSizing:'border-box'}}/>
+                  <span onClick={()=>setShowPw(!showPw)} style={{position:'absolute',right:10,top:8,cursor:'pointer'}}>{showPw?'🙈':'👁️'}</span>
+                </div>
+                <button onClick={loginEmail} style={{background:'#16a34a',color:'#fff',padding:10,borderRadius:8,border:0,width:'100%',marginTop:10,fontWeight:800}}>Create Account / Login</button>
+              </div>
+            )}
+            {mode==='phone' && (
+              <div>
+                <input value={phLogin} onChange={x=>setPhLogin(x.target.value)} placeholder='Phone e.g. 0979879657' style={{padding:10,borderRadius:8,border:'1px solid #ddd',width:'90%'}}/>
+                <div style={{position:'relative',marginTop:8,width:'96%'}}>
+                  <input value={pw} onChange={x=>setPw(x.target.value)} placeholder='Create password 6+ chars' type={showPw?'text':'password'} style={{padding:'10px 40px 10px 10px',borderRadius:8,border:'1px solid #ddd',width:'100%',boxSizing:'border-box'}}/>
+                  <span onClick={()=>setShowPw(!showPw)} style={{position:'absolute',right:10,top:8,cursor:'pointer'}}>{showPw?'🙈':'👁️'}</span>
+                </div>
+                <button onClick={loginPhone} style={{background:'#16a34a',color:'#fff',padding:10,borderRadius:8,border:0,width:'100%',marginTop:8,fontWeight:800}}>Create Account / Login with Phone</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  )
+          }
