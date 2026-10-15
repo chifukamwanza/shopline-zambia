@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
-// Supabase - your project
 const supabase = createClient(
   'https://kfusttbmgbxklwnexdyk.supabase.co',
   'sb_publishable_XGyHpQhM0l2YLZPrQSqSSg_I0axJuXd'
@@ -10,8 +9,9 @@ const supabase = createClient(
 
 export default function App() {
   const [user, setUser] = useState(null)
-  const [email, setEmail] = useState('')
+  const [contact, setContact] = useState('') // email OR phone
   const [pass, setPass] = useState('')
+  const [showPass, setShowPass] = useState(false) // eye toggle
   const [showLogin, setShowLogin] = useState(false)
   const [loading, setLoading] = useState(false)
   const [products, setProducts] = useState([
@@ -32,36 +32,41 @@ export default function App() {
   }, [])
 
   const handleLogin = async () => {
-    if (!email ||!pass) return alert('Enter email and password')
+    if (!contact ||!pass) return alert('Enter email/phone and password')
     setLoading(true)
     try {
+      const isPhone =!contact.includes('@')
+      const field = isPhone? 'phone' : 'email'
+
       // 1. Check if user exists
-      const { data: existing } = await supabase
-       .from('users')
-       .select('*')
-       .eq('email', email)
-       .eq('password', pass)
-       .single()
+      let query = supabase.from('users').select('*').eq('password', pass)
+      if (isPhone) query = query.eq('phone', contact)
+      else query = query.eq('email', contact)
+
+      const { data: existing } = await query.single()
 
       if (existing) {
         localStorage.setItem('shopline_user', JSON.stringify(existing))
         setUser(existing)
         setShowLogin(false)
-        setEmail('')
+        setContact('')
         setPass('')
-        alert('Welcome back ' + existing.email + '!')
+        alert('Welcome back ' + (existing.email || existing.phone) + '!')
       } else {
         // 2. Create new user
+        const newData = isPhone
+         ? { phone: contact, password: pass, name: contact }
+          : { email: contact, password: pass, name: contact.split('@')[0] }
+
         const { data: newUser, error } = await supabase
          .from('users')
-         .insert([{ email: email, password: pass, name: email.split('@')[0] }])
+         .insert([newData])
          .select()
          .single()
 
         if (error) {
-          // If email exists with different password
           if (error.code === '23505') {
-            alert('Email already exists, wrong password')
+            alert('Account exists, wrong password')
           } else {
             alert('Error: ' + error.message)
           }
@@ -69,7 +74,7 @@ export default function App() {
           localStorage.setItem('shopline_user', JSON.stringify(newUser))
           setUser(newUser)
           setShowLogin(false)
-          setEmail('')
+          setContact('')
           setPass('')
           alert('Account created! Welcome to Shopline Market!')
         }
@@ -93,7 +98,7 @@ export default function App() {
       title: newTitle,
       price: newPrice.startsWith('K')? newPrice : 'K' + newPrice,
       location: newLocation || 'Zambia',
-      seller: user.email
+      seller: user.email || user.phone
     }
     const updated = [newProduct,...products]
     setProducts(updated)
@@ -113,64 +118,78 @@ export default function App() {
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {user? (
             <>
-              <span style={{ fontSize: '11px', maxWidth: '100px', overflow: 'hidden' }}>{user.email}</span>
-              <button onClick={() => setShowSell(true)} style={{ background: '#16a34a', color: '#fff', padding: '6px 12px', borderRadius: '6px', border: 'none', fontSize: '13px' }}>+ Sell Free</button>
-              <button onClick={handleLogout} style={{ background: '#f3f3f3', padding: '6px 12px', borderRadius: '6px', border: 'none', fontSize: '13px' }}>Log Out</button>
+              <span style={{ fontSize: '12px' }}>{user.email || user.phone}</span>
+              <button onClick={() => setShowSell(true)} style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: '8px' }}>+ Sell Free</button>
+              <button onClick={handleLogout} style={{ background: '#eee', border: 'none', padding: '8px 12px', borderRadius: '8px' }}>Logout</button>
             </>
           ) : (
-            <button onClick={() => setShowLogin(true)} style={{ background: '#16a34a', color: '#fff', padding: '7px 16px', borderRadius: '8px', border: 'none' }}>Log In</button>
+            <button onClick={() => setShowLogin(true)} style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: '8px' }}>Log In</button>
           )}
         </div>
       </header>
 
-      {/* BANNER */}
-      <div style={{ padding: '16px', background: '#fff', margin: '10px', borderRadius: '12px' }}>
-        <h2 style={{ margin: 0, fontSize: '16px' }}>{user? `Welcome ${user.name || user.email} 👋` : 'Zambia\'s Free Marketplace'}</h2>
-        <p style={{ margin: '6px 0 0', fontSize: '13px', color: '#666' }}>{user? 'You can now sell anything for FREE - no commission' : 'Log in to start buying & selling free'}</p>
-      </div>
+      {/* LOGIN MODAL - NEW WITH PHONE + EYE */}
+      {showLogin && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 20, padding: '16px' }}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '360px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <h2 style={{ margin: 0 }}>Log In / Sign Up</h2>
+            <p style={{ margin: 0, color: '#666', fontSize: '13px' }}>New email or phone = auto creates account</p>
+
+            <input
+              value={contact}
+              onChange={e => setContact(e.target.value)}
+              placeholder="Email or Phone - e.g. chifuka@gmail.com or 0977123456"
+              style={{ padding: '14px', borderRadius: '12px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box' }}
+            />
+
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                value={pass}
+                onChange={e => setPass(e.target.value)}
+                type={showPass? 'text' : 'password'}
+                placeholder="Password"
+                style={{ padding: '14px', paddingRight: '45px', borderRadius: '12px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box' }}
+              />
+              <span
+                onClick={() => setShowPass(!showPass)}
+                style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', fontSize: '20px', userSelect: 'none' }}
+              >{showPass? '🙈' : '👁️'}</span>
+            </div>
+
+            <button onClick={handleLogin} disabled={loading} style={{ background: '#16a34a', color: 'white', padding: '14px', borderRadius: '12px', border: 'none', fontWeight: 'bold' }}>
+              {loading? 'Please wait...' : 'Log In / Create Account'}
+            </button>
+
+            <button onClick={() => setShowLogin(false)} style={{ background: '#f3f4f6', padding: '14px', borderRadius: '12px', border: 'none' }}>Cancel</button>
+          </div>
+        </div>
+      )}
 
       {/* PRODUCTS */}
-      <div style={{ padding: '0 10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div style={{ padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
         {products.map(p => (
-          <div key={p.id} style={{ background: '#fff', borderRadius: '12px', padding: '10px', border: '1px solid #eee' }}>
-            <div style={{ background: '#e5f8e5', height: '80px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#16a34a' }}>IMAGE</div>
-            <div style={{ fontWeight: 'bold', fontSize: '13px', marginTop: '8px' }}>{p.title}</div>
-            <div style={{ color: '#16a34a', fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>{p.price}</div>
-            <div style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>{p.location} • {p.seller.split('@')[0]}</div>
-            <button style={{ width: '100%', marginTop: '8px', padding: '6px', background: '#111', color: '#fff', borderRadius: '6px', border: 'none', fontSize: '12px' }}>Contact Seller</button>
+          <div key={p.id} style={{ background: '#fff', padding: '12px', borderRadius: '12px', border: '1px solid #eee' }}>
+            <div style={{ background: '#dcfce7', height: '100px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a', fontWeight: 'bold' }}>IMAGE</div>
+            <div style={{ marginTop: '8px', fontWeight: 'bold', fontSize: '14px' }}>{p.title}</div>
+            <div style={{ color: '#16a34a', fontWeight: 'bold' }}>{p.price}</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>{p.location} • {p.seller}</div>
           </div>
         ))}
       </div>
 
-      {/* LOGIN MODAL */}
-      {showLogin && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '16px' }}>
-          <div style={{ background: '#fff', padding: '20px', borderRadius: '16px', width: '100%', maxWidth: '340px' }}>
-            <h3 style={{ margin: 0 }}>Log In / Sign Up</h3>
-            <p style={{ fontSize: '12px', color: '#666' }}>New email = auto creates account</p>
-            <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email - e.g. chifuka@gmail.com" style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', marginTop: '12px', boxSizing: 'border-box' }} />
-            <input value={pass} onChange={e => setPass(e.target.value)} type="password" placeholder="Password" style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', marginTop: '10px', boxSizing: 'border-box' }} />
-            <button onClick={handleLogin} disabled={loading} style={{ width: '100%', marginTop: '12px', padding: '12px', background: '#16a34a', color: '#fff', borderRadius: '8px', border: 'none', fontWeight: 'bold' }}>{loading? 'Loading...' : 'Log In / Create Account'}</button>
-            <button onClick={() => setShowLogin(false)} style={{ width: '100%', marginTop: '8px', padding: '10px', background: '#f3f3f3', borderRadius: '8px', border: 'none' }}>Cancel</button>
-          </div>
-        </div>
-      )}
-
       {/* SELL MODAL */}
       {showSell && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '16px' }}>
-          <div style={{ background: '#fff', padding: '20px', borderRadius: '16px', width: '100%', maxWidth: '340px' }}>
-            <h3 style={{ margin: 0 }}>Sell Free on Shopline</h3>
-            <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="What are you selling? e.g. Tomatoes" style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', marginTop: '12px', boxSizing: 'border-box' }} />
-            <input value={newPrice} onChange={e => setNewPrice(e.target.value)} placeholder="Price e.g. 150" style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', marginTop: '10px', boxSizing: 'border-box' }} />
-            <input value={newLocation} onChange={e => setNewLocation(e.target.value)} placeholder="Location e.g. Lusaka" style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', marginTop: '10px', boxSizing: 'border-box' }} />
-            <button onClick={handleSell} style={{ width: '100%', marginTop: '12px', padding: '12px', background: '#16a34a', color: '#fff', borderRadius: '8px', border: 'none', fontWeight: 'bold' }}>List Product FREE</button>
-            <button onClick={() => setShowSell(false)} style={{ width: '100%', marginTop: '8px', padding: '10px', background: '#f3f3f3', borderRadius: '8px', border: 'none' }}>Cancel</button>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 20, padding: '16px' }}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '360px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <h2 style={{ margin: 0 }}>Sell Free</h2>
+            <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Product title" style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc' }} />
+            <input value={newPrice} onChange={e => setNewPrice(e.target.value)} placeholder="Price e.g. 150" style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc' }} />
+            <input value={newLocation} onChange={e => setNewLocation(e.target.value)} placeholder="Location e.g. Chipata" style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc' }} />
+            <button onClick={handleSell} style={{ background: '#16a34a', color: '#fff', padding: '12px', borderRadius: '8px', border: 'none' }}>Post</button>
+            <button onClick={() => setShowSell(false)} style={{ background: '#eee', padding: '12px', borderRadius: '8px', border: 'none' }}>Cancel</button>
           </div>
         </div>
       )}
-
-      <div style={{ height: '80px' }}></div>
     </div>
   )
-    }
+              }
