@@ -30,13 +30,11 @@ const userName=user?(user.name||'Chifuka'):'Friend';
 return(<div style={{minHeight:'100vh',background:'#f2f2f2',fontFamily:'Arial'}}>
 <header style={{background:'#fff',borderBottom:'1px solid #eee',position:'sticky',top:0,zIndex:10}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 12px'}}><div style={{lineHeight:'15px'}}><div style={{color:'#16a34a',fontWeight:900}}>SHOPLINE</div><div style={{color:'#16a34a',fontWeight:900}}>MARKET</div></div><div style={{display:'flex',alignItems:'center',gap:'8px'}}>{user?<><button onClick={()=>setShowSell(true)} style={{background:'#16a34a',color:'#fff',border:'none',padding:'11px 16px',borderRadius:'12px',fontWeight:'bold'}}>+ Sell Free</button><div onClick={()=>setShowProfile(true)} style={{width:'40px',height:'40px',borderRadius:'50%',background:'#111',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold',cursor:'pointer'}}>{initial}</div></>:<button onClick={()=>setShowLogin(true)} style={{background:'#16a34a',color:'#fff',border:'none',padding:'11px 18px',borderRadius:'12px',fontWeight:'bold'}}>Log In</button>}</div></div></header>
 
-{/* WARM WELCOME MESSAGE */}
 <div style={{background:'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',padding:'16px 12px',maxWidth:'600px',margin:'0 auto'}}>
 <div style={{fontSize:'18px',fontWeight:'bold'}}>{user?`Welcome back, ${userName}! 👋`:'Welcome to Shopline Market! 👋'}</div>
-<div style={{fontSize:'13px',marginTop:'4px',opacity:0.95}}>{user?`Find fresh deals in Zambia. ${filtered.length} items near you.`:'Buy & Sell anything in Zambia — Free, Fast & Trusted 🇿🇲'}</div>
+<div style={{fontSize:'13px',marginTop:'4px',opacity:0.95}}>{user?`Discover amazing deals near you. ${filtered.length} items waiting.`:'Buy & Sell Anything, Anywhere — Free, Fast & Trusted 🌍'}</div>
 </div>
 
-{/* CATEGORIES */}
 <div style={{background:'#fff',padding:'10px 12px',display:'flex',gap:'8px',overflowX:'auto',whiteSpace:'nowrap',maxWidth:'600px',margin:'0 auto',borderBottom:'1px solid #eee'}}>
 {categories.map(c=><button key={c} onClick={()=>setCat(c)} style={{background:cat===c?'#16a34a':'#f3f4f6',color:cat===c?'#fff':'#333',border:'none',padding:'8px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:cat===c?'bold':'normal',flexShrink:0}}>{c}</button>)}
 </div>
