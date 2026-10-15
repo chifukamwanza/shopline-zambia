@@ -8,27 +8,27 @@ const supabase = createClient(
 
 export default function App() {
   const categories = [
-    { id: 'All', label: 'All' },
-    { id: 'Trending', label: 'Trending' },
-    { id: 'Phones', label: 'Phones' },
-    { id: 'Laptops', label: 'Laptops' },
-    { id: 'Electronics', label: 'Electronics' },
-    { id: 'Fashion Men', label: 'Men Fashion' },
-    { id: 'Fashion Women', label: 'Women Fashion' },
-    { id: 'Shoes', label: 'Shoes' },
-    { id: 'Beauty', label: 'Beauty' },
-    { id: 'Home', label: 'Home' },
-    { id: 'Vehicles', label: 'Vehicles' },
-    { id: 'Property', label: 'Property' },
-    { id: 'Food', label: 'Food' },
-    { id: 'Livestock', label: 'Livestock' },
-    { id: 'Agriculture', label: 'Agriculture' },
-    { id: 'Services', label: 'Services' },
-    { id: 'Jobs', label: 'Jobs' },
-    { id: 'Kids', label: 'Kids' },
-    { id: 'Sports', label: 'Sports' },
-    { id: 'Books', label: 'Books' },
-    { id: 'Pets', label: 'Pets' },
+    { id: 'All', label: 'All', icon: '★' },
+    { id: 'Trending', label: 'Trending', icon: '🔥' },
+    { id: 'Phones', label: 'Phones', icon: '📱' },
+    { id: 'Laptops', label: 'Laptops', icon: '💻' },
+    { id: 'Electronics', label: 'Electronics', icon: '🔌' },
+    { id: 'Fashion Men', label: 'Men', icon: '👕' },
+    { id: 'Fashion Women', label: 'Women', icon: '👗' },
+    { id: 'Shoes', label: 'Shoes', icon: '👟' },
+    { id: 'Beauty', label: 'Beauty', icon: '💄' },
+    { id: 'Home', label: 'Home', icon: '🏠' },
+    { id: 'Vehicles', label: 'Vehicles', icon: '🚗' },
+    { id: 'Property', label: 'Property', icon: '🏢' },
+    { id: 'Food', label: 'Food', icon: '🍎' },
+    { id: 'Livestock', label: 'Livestock', icon: '🐄' },
+    { id: 'Agriculture', label: 'Farming', icon: '🌾' },
+    { id: 'Services', label: 'Services', icon: '🔧' },
+    { id: 'Jobs', label: 'Jobs', icon: '💼' },
+    { id: 'Kids', label: 'Kids', icon: '👶' },
+    { id: 'Sports', label: 'Sports', icon: '⚽' },
+    { id: 'Books', label: 'Books', icon: '📚' },
+    { id: 'Pets', label: 'Pets', icon: '🐶' },
   ]
 
   const [user, setUser] = useState(null)
@@ -124,72 +124,4 @@ export default function App() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('shopline_user')
-    setUser(null)
-    setShowProfile(false)
-  }
-
-  const handleSell = () => {
-    if (!newTitle ||!newPrice) return alert('Add title and price')
-    if (!user) return alert('Login first')
-    const np = { id: Date.now(), title: newTitle, price: newPrice.startsWith('K')? newPrice : 'K' + newPrice, location: newLocation || 'Lusaka', seller: user.email || user.phone, image: newImage, cat: newCat }
-    const up = [np,...products]
-    setProducts(up)
-    localStorage.setItem('shopline_products', JSON.stringify(up))
-    setNewTitle('')
-    setNewPrice('')
-    setNewLocation('')
-    setNewImage('')
-    setShowSell(false)
-  }
-
-  const openChat = (p) => {
-    if (!user) return alert('Login to chat')
-    setChatProduct(p)
-    setShowChat(true)
-  }
-
-  const sendChat = () => {
-    if (!chatMsg.trim()) return
-    const id = chatProduct.id
-    const all = {...chats }
-    if (!all[id]) all[id] = []
-    all[id].push({ from: user.email || user.phone, text: chatMsg, time: new Date().toLocaleTimeString() })
-    setChats(all)
-    localStorage.setItem('shopline_chats', JSON.stringify(all))
-    setChatMsg('')
-  }
-
-  const initial = getInitial()
-  const filtered = cat === 'All'? products : cat === 'Trending'? products.slice(0, 6) : products.filter(p => p.cat === cat)
-  const userName = user? (user.name || 'Chifuka') : 'Friend'
-
-  return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: 'Arial' }}>
-      <header style={{ background: '#fff', borderBottom: '1px solid #eee', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px' }}>
-          <div style={{ lineHeight: '15px' }}>
-            <div style={{ color: '#16a34a', fontWeight: 900 }}>SHOPLINE</div>
-            <div style={{ color: '#16a34a', fontWeight: 900 }}>MARKET</div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {user? (
-              <>
-                <button onClick={() => setShowSell(true)} style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '11px 16px', borderRadius: '12px', fontWeight: 'bold' }}>+ Sell Free</button>
-                <div onClick={() => setShowProfile(true)} style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#111', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', cursor: 'pointer' }}>{initial}</div>
-              </>
-            ) : (
-              <button onClick={() => setShowLogin(true)} style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '11px 18px', borderRadius: '12px', fontWeight: 'bold' }}>Log In</button>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <div style={{ background: 'linear-gradient(135deg,#16a34a,#22c55e)', color: '#fff', padding: '16px 12px', maxWidth: '700px', margin: '0 auto' }}>
-        <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{user? `Welcome back, ${userName}!` : 'Welcome to Shopline Market!'}</div>
-        <div style={{ fontSize: '13px', marginTop: '4px', opacity: 0.95 }}>{user? `Discover trending deals near you. ${filtered.length} items waiting.` : 'Buy and Sell Anything, Anywhere - Free, Fast and Trusted'}</div>
-      </div>
-
-      <div style={{ background: '#fff', padding: '12px', display: 'flex', gap: '8px', overflowX: 'auto', whiteSpace: 'nowrap', maxWidth: '700px', margin: '0 auto', borderBottom: '1px solid #eee' }}>
-        {categories.map(c => (
-          <button key={c.id} onClick={() => setCat(c.id)} style={{ background: cat === c.id? '#111' : '#fff', color: cat === c.id? '#fff' : '#333', border: cat === c.id? 'none' : '1px solid #e5e7eb', padding: '8px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold', flexShrink: 0 }}>{c.label
+    localStorage.removeItem('shopline
