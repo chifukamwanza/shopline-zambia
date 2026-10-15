@@ -8,27 +8,27 @@ const supabase = createClient(
 
 export default function App() {
   const categories = [
-    { id: 'All', label: 'All', icon: '✨' },
-    { id: 'Trending', label: 'Trending', icon: '🔥' },
-    { id: 'Phones', label: 'Phones', icon: '📱' },
-    { id: 'Laptops', label: 'Laptops', icon: '💻' },
-    { id: 'Electronics', label: 'Electronics', icon: '🔌' },
-    { id: 'Fashion Men', label: 'Men Fashion', icon: '👕' },
-    { id: 'Fashion Women', label: 'Women Fashion', icon: '👗' },
-    { id: 'Shoes', label: 'Shoes', icon: '👟' },
-    { id: 'Beauty', label: 'Beauty', icon: '💄' },
-    { id: 'Home', label: 'Home & Garden', icon: '🏠' },
-    { id: 'Vehicles', label: 'Vehicles', icon: '🚗' },
-    { id: 'Property', label: 'Property', icon: '🏘️' },
-    { id: 'Food', label: 'Food', icon: '🍅' },
-    { id: 'Livestock', label: 'Livestock', icon: '🐄' },
-    { id: 'Agriculture', label: 'Agriculture', icon: '🌾' },
-    { id: 'Services', label: 'Services', icon: '🛠️' },
-    { id: 'Jobs', label: 'Jobs', icon: '💼' },
-    { id: 'Kids', label: 'Babies & Kids', icon: '🧒' },
-    { id: 'Sports', label: 'Sports', icon: '⚽' },
-    { id: 'Books', label: 'Books', icon: '📚' },
-    { id: 'Pets', label: 'Pets', icon: '🐶' },
+    { id: 'All', label: 'All' },
+    { id: 'Trending', label: 'Trending' },
+    { id: 'Phones', label: 'Phones' },
+    { id: 'Laptops', label: 'Laptops' },
+    { id: 'Electronics', label: 'Electronics' },
+    { id: 'Fashion Men', label: 'Men Fashion' },
+    { id: 'Fashion Women', label: 'Women Fashion' },
+    { id: 'Shoes', label: 'Shoes' },
+    { id: 'Beauty', label: 'Beauty' },
+    { id: 'Home', label: 'Home' },
+    { id: 'Vehicles', label: 'Vehicles' },
+    { id: 'Property', label: 'Property' },
+    { id: 'Food', label: 'Food' },
+    { id: 'Livestock', label: 'Livestock' },
+    { id: 'Agriculture', label: 'Agriculture' },
+    { id: 'Services', label: 'Services' },
+    { id: 'Jobs', label: 'Jobs' },
+    { id: 'Kids', label: 'Kids' },
+    { id: 'Sports', label: 'Sports' },
+    { id: 'Books', label: 'Books' },
+    { id: 'Pets', label: 'Pets' },
   ]
 
   const [user, setUser] = useState(null)
@@ -186,4 +186,10 @@ export default function App() {
       </header>
 
       <div style={{ background: 'linear-gradient(135deg,#16a34a,#22c55e)', color: '#fff', padding: '16px 12px', maxWidth: '700px', margin: '0 auto' }}>
-        <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{user? `Welcome back, ${userName}! 👋` : 'Welcome
+        <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{user? `Welcome back, ${userName}!` : 'Welcome to Shopline Market!'}</div>
+        <div style={{ fontSize: '13px', marginTop: '4px', opacity: 0.95 }}>{user? `Discover trending deals near you. ${filtered.length} items waiting.` : 'Buy and Sell Anything, Anywhere - Free, Fast and Trusted'}</div>
+      </div>
+
+      <div style={{ background: '#fff', padding: '12px', display: 'flex', gap: '8px', overflowX: 'auto', whiteSpace: 'nowrap', maxWidth: '700px', margin: '0 auto', borderBottom: '1px solid #eee' }}>
+        {categories.map(c => (
+          <button key={c.id} onClick={() => setCat(c.id)} style={{ background: cat === c.id? '#111' : '#fff', color: cat === c.id? '#fff' : '#333', border: cat === c.id? 'none' : '1px solid #e5e7eb', padding: '8px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold', flexShrink: 0 }}>{c.label
