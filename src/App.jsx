@@ -29,7 +29,53 @@ const [t,setT]=useState('');const [p,setP]=useState('');const [loc,setLoc]=useSt
 useEffect(()=>{const s=localStorage.getItem('shopline_user');if(s)setUser(JSON.parse(s))},[])
 const getI=()=>{if(!user)return 'C';let n=user.name||'C';return n[0].toUpperCase()}
 const handleImg=(e)=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>setImg(r.result);r.readAsDataURL(f)}
-const login=async()=>{if(!contact||!pass)return alert('Enter email/phone and password');setLoading(true);try{const isPhone=!contact.includes('@');const v=contact.trim();let found=null;if(isPhone){const {data}=await supabase.from('users').select('*').eq('phone',v).eq('password',pass).maybeSingle();if(data)found=data;else{const {data:d2}=await supabase.from('users').select('*').eq('email',v+'@phone.shopline').eq('password',pass).maybeSingle();if(d2)found=d2}}else{const {data}=await supabase.from('users').select('*').eq('email',v).eq('password',pass).maybeSingle();if(data)found=data}if(found){localStorage.setItem('shopline_user',JSON.stringify(found));setUser(found);setShowLogin(false);setContact('');setPass('')}else{const nd=isPhone?{phone:v,email:v+'@phone.shopline',password:pass,name:v}:{email:v,phone:v,password:pass,name:v.split('@')[0]};const {data:nu,error}=await supabase.from('users').insert([nd]).select().single();if(error)alert(error.message);else{localStorage.setItem('shopline_user',JSON.stringify(nu));setUser(nu);setShowLogin(false);setContact('');setPass('')}}}catch(e){alert(e.message)}setLoading(false)}
+
+// FIXED LOGIN - no more duplicate key error
+const login=async()=>{
+if(!contact||!pass)return alert('Enter email/phone and password');
+setLoading(true);
+try{
+const v=contact.trim();
+let found=null;
+const isPhone=!v.includes('@');
+if(isPhone){
+  const {data:d1}=await supabase.from('users').select('*').eq('phone',v).maybeSingle();
+  if(d1) found=d1;
+  if(!found){
+    const {data:d2}=await supabase.from('users').select('*').eq('email',v+'@phone.shopline').maybeSingle();
+    if(d2) found=d2;
+  }
+}else{
+  const {data:d3}=await supabase.from('users').select('*').eq('email',v).maybeSingle();
+  if(d3) found=d3;
+}
+if(found){
+  if(found.password===pass){
+    localStorage.setItem('shopline_user',JSON.stringify(found));
+    setUser(found);setShowLogin(false);setContact('');setPass('');
+  }else{
+    alert('Wrong password for this account');
+  }
+}else{
+  const nd=isPhone?{phone:v,email:v+'@phone.shopline',password:pass,name:v}:{email:v,phone:v,password:pass,name:v.split('@')[0]};
+  const {data:nu,[STRIPPED] supabase.from('users').insert([nd]).select().single();
+  if(error){
+    if(error.message.includes('duplicate')||error.message.includes('unique')){
+      const {data:retry}=await supabase.from('users').select('*').eq('email',nd.email).maybeSingle();
+      if(retry){
+        localStorage.setItem('shopline_user',JSON.stringify(retry));
+        setUser(retry);setShowLogin(false);setContact('');setPass('');
+      }else alert(error.message)
+    }else alert(error.message)
+  }else{
+    localStorage.setItem('shopline_user',JSON.stringify(nu));
+    setUser(nu);setShowLogin(false);setContact('');setPass('');
+  }
+}
+}catch(e){alert(e.message)}
+setLoading(false)
+}
+
 const sell=()=>{if(!t||!p)return alert('Add title price');const np={id:Date.now(),title:t,price:p.startsWith('K')?p:'K'+p,location:loc||'Lusaka',country:nCountry,cat:nc,image:img};setProducts([np,...products]);setT('');setP('');setLoc('');setImg('');setShowSell(false)}
 let filtered=cat==='All'?products:cat==='Trending'?products.slice(0,8):products.filter(x=>x.cat===cat)
 if(country!=='All Countries') filtered=filtered.filter(x=>x.country===country)
