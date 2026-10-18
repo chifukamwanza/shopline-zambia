@@ -1,6 +1,6 @@
-# Shopline Zambia
+# Shopline
 
-A marketplace app for buying and selling products across Zambia and other African countries.
+A marketplace app for buying and selling products globally.
 
 ## Local setup
 
