@@ -1,5 +1,3 @@
-importimport React from 'react'
-
 export default function ProductCard({ pr, cats }){
   const iconObj = cats.find(x=>x.id===pr.cat)
   const icon = iconObj ? iconObj.i : '📦'
@@ -14,4 +12,4 @@ export default function ProductCard({ pr, cats }){
       <div style={{fontSize:'11px',color:'#666'}}>{pr.location} - {pr.country} - {pr.cat}</div>
     </div>
   )
-}
+      }
