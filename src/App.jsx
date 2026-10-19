@@ -22,7 +22,6 @@ const cats = [
   { id: 'Pets', l: 'Pets', i: '🐶' }
 ]
 
-// GLOBAL COUNTRIES - NO LIMIT
 const countries = ["Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi","Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Costa Rica","Croatia","Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Fiji","Finland","France","Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe"]
 const allCountriesFilter = ['All Countries', ...countries]
 
@@ -52,48 +51,49 @@ export default function App(){
   const [products,setProducts]=useState([{id:1,title:'iPhone 13 Pro',desc:'Very clean 256GB',price:'K8500',location:'Lusaka',country:'Zambia',cat:'Phones',owner:'test@test.com'},{id:2,title:'Toyota Hilux 2020',desc:'Diesel low mileage',price:'K185000',location:'Ndola',country:'Zambia',cat:'Vehicles',owner:'test@test.com'}])
 
   useEffect(()=>{ if(user){ setEditName(user.name||''); setEditBio(user.bio||''); setEditCountry(user.userCountry||'Global'); setEditTown(user.town||''); setEditPhone(user.phone||''); setEditPic(user.pic||'') } },[user, showProfile])
-  
   useEffect(()=>{ document.title = cat==='All' ? `Shopline - Buy & Sell Anything | ${country}` : `${cat} for Sale in ${country} | Shopline` },[cat,country])
 
-  const buildEmail = (c)=> c.includes('@')?c:`${c}@phone.shopline`
-  
-  // FIXED LOGIN - WORKS EVEN IF SUPABASE FAILS
-  const login=async()=>{
+  // FIXED LOGIN - 100% WORKS OFFLINE
+  const login=()=>{
     if(!contact||!pass) return alert('Enter email/phone and password');
-    setLoading(true);
-    try{
-      const v=contact.trim();
-      let found=null;
-      const isPhone=!v.includes('@');
-      try{
-        if(isPhone){
-          const {data:d1}=await supabase.from('users').select('*').eq('phone',v).maybeSingle(); if(d1) found=d1;
-          if(!found){ const {data:d2}=await supabase.from('users').select('*').eq('email',buildEmail(v)).maybeSingle(); if(d2) found=d2 }
-        }else{
-          const {data:d3}=await supabase.from('users').select('*').eq('email',v).maybeSingle(); if(d3) found=d3
-        }
-      }catch{}
-      if(found){
-        if(found.password===pass){
-          try{ const m=safeStorage.read('shopline_profiles')||{}; if(m[found.email]) found={...found,...m[found.email]} }catch{}
-          safeStorage.write('shopline_user', found); setUser(found); setShowLogin(false); setContact(''); setPass('');
-        }else alert('Wrong password')
-      }else{
-        const newUser = isPhone ? {email:buildEmail(v), phone:v, password:pass, name:v, userCountry:'Global', pic:'', verified:true} : {email:v, phone:v, password:pass, name:v.split('@')[0], userCountry:'Global', pic:'', verified:true}
-        try{ await supabase.from('users').insert([newUser]) }catch{}
-        safeStorage.write('shopline_user', newUser);
-        setUser(newUser);
-        setShowLogin(false); setContact(''); setPass('');
-        alert('Account created! Welcome to Shopline Global')
-      }
-    }catch(e){ alert(e.message) }
-    setLoading(false)
+    const v = contact.trim();
+    if(v.length < 3) return alert('Enter valid email or phone');
+    const email = v.includes('@') ? v.toLowerCase() : `${v}@phone.shopline`;
+    const saved = safeStorage.read('shopline_users') || {};
+    let found = saved[email] || saved[v.toLowerCase()] || saved[v];
+    if(!found){
+      for(let k in saved){ if(saved[k].phone===v || saved[k].email===v.toLowerCase()){ found=saved[k]; break } }
+    }
+    if(found){
+      if(found.password !== pass) return alert('Wrong password');
+      safeStorage.write('shopline_user', found);
+      setUser(found);
+    } else {
+      const newUser = {
+        email: email,
+        phone: v.includes('@') ? '' : v,
+        password: pass,
+        name: v.includes('@') ? v.split('@')[0] : v,
+        userCountry: 'Global',
+        town: '',
+        bio: '',
+        pic: '',
+        verified: true
+      };
+      saved[email] = newUser;
+      if(!v.includes('@')) saved[v] = newUser;
+      safeStorage.write('shopline_users', saved);
+      safeStorage.write('shopline_user', newUser);
+      setUser(newUser);
+      try{ supabase.from('users').insert([newUser]).then(()=>{}) }catch{}
+    }
+    setShowLogin(false);
+    setContact('');
+    setPass('');
   }
 
   const confirmVerify=async()=>{ if(verifyInput!==generatedCode) return alert('Wrong code: '+generatedCode); setLoading(true); try{ const {data:nu}=await supabase.from('users').insert([{...pendingUser,verified:true}]).select().single(); if(nu){ safeStorage.write('shopline_user', nu); setUser(nu) } setShowVerify(false); setVerifyInput(''); setPendingUser(null); setContact(''); setPass('') }catch(e){ alert(e.message) } setLoading(false) }
-  
   const updateProfile=async()=>{ if(!editName) return alert('Enter name'); const updated={...user,name:editName,bio:editBio,userCountry:editCountry,town:editTown,phone:editPhone||user.phone,pic:editPic||user?.pic}; safeStorage.write('shopline_user', updated); try{ const m=safeStorage.read('shopline_profiles')||{}; m[updated.email]=updated; safeStorage.write('shopline_profiles', m) }catch{}; setUser(updated); setLoading(true); try{ await supabase.from('users').update({name:editName,phone:editPhone}).eq('email', user.email) }catch{}; setLoading(false); alert('Profile saved!'); setShowProfile(false) }
-  
   const sell=()=>{ if(!t||!p) return alert('Add title & price'); const np={id:Date.now(),title:t,desc:d,price:p.startsWith('K')?p:'K'+p,location:loc||editTown||'Global',country:nCountry||editCountry,cat:nc,image:img,owner:user?.email}; setProducts([np,...products]); setT(''); setD(''); setP(''); setLoc(''); setImg(''); setShowSell(false) }
 
   let filtered=cat==='All'?products:cat==='Trending'?products.slice(0,8):products.filter(x=>x.cat===cat)
