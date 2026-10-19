@@ -1,28 +1,24 @@
 const safeStorage = {
-  read: (key, fallback = null) => {
+  read: (key) => {
     try {
-      const raw = localStorage.getItem(key)
-      return raw ? JSON.parse(raw) : fallback
-    } catch {
-      return fallback
-    }
+      const v = localStorage.getItem(key);
+      if (!v) return null;
+      try { return JSON.parse(v); } catch { return v; }
+    } catch { return null; }
   },
-
   write: (key, value) => {
     try {
-      localStorage.setItem(key, JSON.stringify(value))
+      const v = typeof value === 'string' ? value : JSON.stringify(value);
+      localStorage.setItem(key, v);
+      return true;
     } catch {
-      // Ignore storage errors in restricted browsers
+      try { sessionStorage.setItem(key, JSON.stringify(value)); } catch {}
+      return false;
     }
   },
-
   remove: (key) => {
-    try {
-      localStorage.removeItem(key)
-    } catch {
-      // Ignore storage errors in restricted browsers
-    }
+    try { localStorage.removeItem(key); } catch {}
   }
-}
+};
 
-export default safeStorage
+export default safeStorage;
