@@ -1,3 +1,5 @@
+import Logo from './Logo'
+
 export default function Header({ user, search, setSearch, country, setCountry, allCountriesFilter, cat, setCat, cats, setShowSell, setShowProfile, setShowLogin, editCountry, editPic }){
   const picToShow = editPic || (user && user.pic) || ''
   const initial = user && user.name ? user.name.charAt(0).toUpperCase() : 'S'
@@ -5,7 +7,7 @@ export default function Header({ user, search, setSearch, country, setCountry, a
     <>
       <header style={{background:'#fff',borderBottom:'1px solid #eee',position:'sticky',top:0,zIndex:10}}>
         <div style={{display:'flex',justifyContent:'space-between',padding:'10px 12px',alignItems:'center'}}>
-          <div style={{color:'#16a34a',fontWeight:900,fontSize:'15px'}}>SHOPLINE</div>
+          <Logo size={34} />
           <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
             {user ? (
               <>
@@ -40,4 +42,4 @@ export default function Header({ user, search, setSearch, country, setCountry, a
       </div>
     </>
   )
-              }
+      }
