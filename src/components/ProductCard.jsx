@@ -12,4 +12,4 @@ export default function ProductCard({ pr, cats }){
       <div style={{fontSize:'11px',color:'#666'}}>{pr.location} - {pr.country} - {pr.cat}</div>
     </div>
   )
-      }
+}
