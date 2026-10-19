@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function Header({ user, search, setSearch, country, setCountry, allCountriesFilter, cat, setCat, cats, setShowSell, setShowProfile, setShowLogin, editCountry, editPic }){
   const picToShow = editPic || (user && user.pic) || ''
   const initial = user && user.name ? user.name.charAt(0).toUpperCase() : 'S'
@@ -22,10 +20,9 @@ export default function Header({ user, search, setSearch, country, setCountry, a
           </div>
         </div>
       </header>
-
       <div style={{background:'linear-gradient(135deg,#14532d,#16a34a,#4ade80)',color:'#fff',padding:'18px 14px',maxWidth:'700px',margin:'0 auto'}}>
         <div style={{fontSize:'20px',fontWeight:900}}>{user ? `Welcome back, ${user.name}!` : 'Shopline'}</div>
-        <div style={{fontSize:'13px',marginTop:'6px',opacity:0.95}}>Buy and Sell in {editCountry || 'Zambia'} - Verified</div>
+        <div style={{fontSize:'13px',marginTop:'6px',opacity:0.95}}>Buy and Sell Anything, Anywhere - Verified Global Marketplace</div>
         <div style={{marginTop:'12px',display:'flex',gap:'8px'}}>
           <div style={{flex:1,position:'relative'}}>
             <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..." style={{width:'100%',padding:'12px 14px 12px 36px',borderRadius:'12px',border:'none',boxSizing:'border-box'}}/>
@@ -36,7 +33,6 @@ export default function Header({ user, search, setSearch, country, setCountry, a
           </select>
         </div>
       </div>
-
       <div style={{background:'#fff',padding:'10px',display:'flex',gap:'8px',overflowX:'auto',maxWidth:'700px',margin:'0 auto',borderBottom:'1px solid #eee'}}>
         {cats.map(c=>(
           <button key={c.id} onClick={()=>setCat(c.id)} style={{background:cat===c.id?'#111':'#f3f4f6',color:cat===c.id?'#fff':'#111',border:'none',padding:'7px 12px',borderRadius:'18px',fontSize:'12px',fontWeight:'bold',flexShrink:0}}>{c.i} {c.l}</button>
@@ -44,4 +40,4 @@ export default function Header({ user, search, setSearch, country, setCountry, a
       </div>
     </>
   )
-    }
+              }
