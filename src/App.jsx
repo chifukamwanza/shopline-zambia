@@ -4,42 +4,13 @@ import AuthModal from './components/AuthModal'
 import ProfileModal from './components/ProfileModal'
 
 const CATS = ['All','Phones','Clothes','Electronics','Home','Shoes','Beauty','Cars','Property']
-const COUNTRIES = [
-'Zambia','USA','Afghanistan','Albania','Algeria','Andorra','Angola','Antigua and Barbuda','Argentina','Armenia','Australia','Austria','Azerbaijan',
-'Bahamas','Bahrain','Bangladesh','Barbados','Belarus','Belgium','Belize','Benin','Bhutan','Bolivia','Bosnia and Herzegovina','Botswana','Brazil','Brunei','Bulgaria','Burkina Faso','Burundi',
-'Cambodia','Cameroon','Canada','Cape Verde','Central African Republic','Chad','Chile','China','Colombia','Comoros','Congo','Costa Rica','Croatia','Cuba','Cyprus','Czech Republic',
-'Denmark','Djibouti','Dominica','Dominican Republic',
-'Ecuador','Egypt','El Salvador','Equatorial Guinea','Eritrea','Estonia','Eswatini','Ethiopia',
-'Fiji','Finland','France',
-'Gabon','Gambia','Georgia','Germany','Ghana','Greece','Grenada','Guatemala','Guinea','Guinea-Bissau','Guyana',
-'Haiti','Honduras','Hungary',
-'Iceland','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy',
-'Jamaica','Japan','Jordan',
-'Kazakhstan','Kenya','Kiribati','Kuwait','Kyrgyzstan',
-'Laos','Latvia','Lebanon','Lesotho','Liberia','Libya','Liechtenstein','Lithuania','Luxembourg',
-'Madagascar','Malawi','Malaysia','Maldives','Mali','Malta','Marshall Islands','Mauritania','Mauritius','Mexico','Micronesia','Moldova','Monaco','Mongolia','Montenegro','Morocco','Mozambique','Myanmar',
-'Namibia','Nauru','Nepal','Netherlands','New Zealand','Nicaragua','Niger','Nigeria','North Korea','North Macedonia','Norway',
-'Oman',
-'Pakistan','Palau','Palestine','Panama','Papua New Guinea','Paraguay','Peru','Philippines','Poland','Portugal',
-'Qatar',
-'Romania','Russia','Rwanda',
-'Saint Kitts and Nevis','Saint Lucia','Saint Vincent and the Grenadines','Samoa','San Marino','Sao Tome and Principe','Saudi Arabia','Senegal','Serbia','Seychelles','Sierra Leone','Singapore','Slovakia','Slovenia','Solomon Islands','Somalia','South Africa','South Korea','South Sudan','Spain','Sri Lanka','Sudan','Suriname','Sweden','Switzerland','Syria',
-'Taiwan','Tajikistan','Tanzania','Thailand','Togo','Tonga','Trinidad and Tobago','Tunisia','Turkey','Turkmenistan','Tuvalu',
-'Uganda','Ukraine','United Arab Emirates','United Kingdom','Uruguay','Uzbekistan',
-'Vanuatu','Vatican City','Venezuela','Vietnam',
-'Yemen',
-'Zimbabwe','Other'
-]
+const COUNTRIES = ['Zambia','USA','Afghanistan','Albania','Algeria','Angola','Argentina','Australia','Austria','Belgium','Benin','Botswana','Brazil','Burkina Faso','Burundi','Cameroon','Canada','Chad','China','Colombia','Congo','Denmark','Egypt','Ethiopia','Finland','France','Germany','Ghana','India','Indonesia','Italy','Japan','Kenya','Malawi','Malaysia','Mexico','Morocco','Mozambique','Namibia','Nigeria','Portugal','Rwanda','South Africa','Spain','Tanzania','Turkey','Uganda','United Kingdom','Zimbabwe','Other']
+
 const safeStorage = {
   read: (key, def) => {
-    try {
-      const v = localStorage.getItem(key)
-      return v ? JSON.parse(v) : def
-    } catch { return def }
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def } catch { return def }
   },
-  write: (key, val) => {
-    try { localStorage.setItem(key, JSON.stringify(val)) } catch {}
-  }
+  write: (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)) } catch {} }
 }
 
 export default function App(){
@@ -54,7 +25,6 @@ export default function App(){
   const [search, setSearch] = useState('')
   const [cat, setCat] = useState('All')
   const [editing, setEditing] = useState(null)
-
   const [title, setTitle] = useState('')
   const [desc, setDesc] = useState('')
   const [price, setPrice] = useState('')
@@ -62,12 +32,10 @@ export default function App(){
   const [town, setTown] = useState('Chipata')
   const [image, setImage] = useState('')
   const [imgPreview, setImgPreview] = useState('')
-  
   const [contact, setContact] = useState('')
   const [pass, setPass] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
-
   const [editName, setEditName] = useState('')
   const [editBio, setEditBio] = useState('')
   const [editCountry, setEditCountry] = useState('Zambia')
@@ -76,73 +44,33 @@ export default function App(){
   const [editPic, setEditPic] = useState('')
 
   useEffect(()=>{ safeStorage.write('shopline_products', products) },[products])
-  useEffect(()=>{ 
-    if(user){ 
-      safeStorage.write('shopline_user', user) 
-    } else { 
-      try{ localStorage.removeItem('shopline_user') }catch{} 
-    } 
-  },[user])
+  useEffect(()=>{ if(user){ safeStorage.write('shopline_user', user) } else { try{ localStorage.removeItem('shopline_user') }catch{} } },[user])
 
   const handleImageUpload = (e) => {
-    const file = e.target.files?.[0]
-    if(!file) return
+    const file = e.target.files?.[0]; if(!file) return
     if(file.size > 3*1024*1024){ alert('Image too big <3MB'); return }
     const reader = new FileReader()
     reader.onload = () => { setImage(reader.result); setImgPreview(reader.result) }
     reader.readAsDataURL(file)
   }
-
-  const resetSell = () => {
-    setTitle(''); setDesc(''); setPrice(''); setImage(''); setImgPreview(''); setEditing(null); setShowSell(false)
-  }
-
+  const resetSell = () => { setTitle(''); setDesc(''); setPrice(''); setImage(''); setImgPreview(''); setEditing(null); setShowSell(false) }
   const handlePost = () => {
     if(!title || !price){ alert('Add title and price'); return }
     if(!user){ setShowAuth(true); return }
-    const newPr = {
-      id: editing ? editing.id : Date.now(),
-      title, description: desc, price: price.startsWith('K')?price:`K${price}`,
-      country, location: town, image: image || 'https://via.placeholder.com/300',
-      owner: user.email
-    }
+    const newPr = { id: editing ? editing.id : Date.now(), title, description: desc, price: price.startsWith('K')?price:`K${price}`, country, location: town, image: image || 'https://via.placeholder.com/300', owner: user.email }
     if(editing) setProducts(products.map(p=> p.id===editing.id ? newPr : p))
     else setProducts([newPr, ...products])
     resetSell()
   }
-
-  const onEdit = (pr) => {
-    setEditing(pr)
-    setTitle(pr.title); setDesc(pr.description||''); setPrice(pr.price.replace('K','')); 
-    setCountry(pr.country); setTown(pr.location||'Chipata'); setImage(pr.image); setImgPreview(pr.image)
-    setShowSell(true)
-  }
-  const onDelete = (pr) => {
-    if(!confirm(`Delete ${pr.title}?`)) return
-    setProducts(products.filter(p=>p.id!==pr.id))
-  }
-
+  const onEdit = (pr) => { setEditing(pr); setTitle(pr.title); setDesc(pr.description||''); setPrice(pr.price.replace('K','')); setCountry(pr.country); setTown(pr.location||'Chipata'); setImage(pr.image); setImgPreview(pr.image); setShowSell(true) }
+  const onDelete = (pr) => { if(!confirm(`Delete ${pr.title}?`)) return; setProducts(products.filter(p=>p.id!==pr.id)) }
   const onLogin = () => {
     if(!contact || !pass){ alert('Fill fields'); return }
     setLoading(true)
-    setTimeout(()=>{
-      const u = {email: contact.includes('@')?contact:`${contact}@phone.zm`, name: contact.split('@')[0], pic:'', country:'Zambia', town:'Chipata', phone:contact, bio:''}
-      setUser(u); safeStorage.write('shopline_user', u)
-      setShowAuth(false); setLoading(false)
-    },600)
+    setTimeout(()=>{ const u = {email: contact.includes('@')?contact:`${contact}@phone.zm`, name: contact.split('@')[0], pic:'', country:'Zambia', town:'Chipata', phone:contact, bio:''}; setUser(u); safeStorage.write('shopline_user', u); setShowAuth(false); setLoading(false) },600)
   }
-
-  const openProfile = () => {
-    if(!user){ setShowAuth(true); return }
-    setEditName(user.name||''); setEditBio(user.bio||''); setEditCountry(user.country||'Zambia'); setEditTown(user.town||''); setEditPhone(user.phone||''); setEditPic(user.pic||'')
-    setShowProfile(true)
-  }
-
-  const saveProfile = () => {
-    setLoading(true)
-    const nu = {...user, name:editName, bio:editBio, country:editCountry, town:editTown, phone:editPhone, pic:editPic}
-    setTimeout(()=>{ setUser(nu); safeStorage.write('shopline_user', nu); setLoading(false); setShowProfile(false) },500)
-  }
+  const openProfile = () => { if(!user){ setShowAuth(true); return }; setEditName(user.name||''); setEditBio(user.bio||''); setEditCountry(user.country||'Zambia'); setEditTown(user.town||''); setEditPhone(user.phone||''); setEditPic(user.pic||''); setShowProfile(true) }
+  const saveProfile = () => { setLoading(true); const nu = {...user, name:editName, bio:editBio, country:editCountry, town:editTown, phone:editPhone, pic:editPic}; setTimeout(()=>{ setUser(nu); safeStorage.write('shopline_user', nu); setLoading(false); setShowProfile(false) },500) }
 
   const filtered = products.filter(p=> {
     const matchSearch = (p.title+p.description).toLowerCase().includes(search.toLowerCase())
@@ -162,8 +90,8 @@ export default function App(){
 
       <div style={{padding:'12px'}}>
         <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..." style={{width:'100%',padding:'12px 14px',borderRadius:'12px',border:'2px solid #000',marginBottom:'10px',background:'#fff',color:'#000'}}/>
-        <div style={{display:'flex',gap:'8px',overflowX:'auto',paddingBottom:'8px',WebkitOverflowScrolling:'touch',scrollbarWidth:'none',msOverflowStyle:'none'}}>
-          {CATS.map(c=> <button key={c} onClick={()=>setCat(c)} style={{padding:'8px 16px',borderRadius:'999px',border:cat===c?'2px solid #000':'1.5px solid #ddd',background:cat===c?'#000':'#fff',color:cat===c?'#fff':'#000',fontWeight:'700',whiteSpace:'nowrap',flexShrink:0,cursor:'pointer'}}>{c}</button>)}
+        <div style={{display:'flex',gap:'8px',overflowX:'auto',paddingBottom:'8px',WebkitOverflowScrolling:'touch'}}>
+          {CATS.map(c=> <button key={c} onClick={()=>setCat(c)} style={{padding:'8px 16px',borderRadius:'999px',border:cat===c?'2px solid #000':'1.5px solid #ddd',background:cat===c?'#000':'#fff',color:cat===c?'#fff':'#000',fontWeight:'700',whiteSpace:'nowrap',flexShrink:0}}>{c}</button>)}
         </div>
       </div>
 
@@ -174,33 +102,27 @@ export default function App(){
       {showSell && (
         <div style={{position:'fixed',inset:0,zIndex:9999,background:'rgba(0,0,0,0.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
           <div style={{background:'#fff',width:'100%',maxWidth:'400px',borderRadius:'20px',padding:'20px',position:'relative',maxHeight:'90vh',overflowY:'auto'}}>
-            <button onClick={resetSell} style={{position:'absolute',right:'14px',top:'14px',width:'32px',height:'32px',borderRadius:'50%',border:'1.5px solid #000',background:'#000',color:'#fff',fontWeight:'900',fontSize:'18px',cursor:'pointer'}}>×</button>
+            <button onClick={resetSell} style={{position:'absolute',right:'14px',top:'14px',width:'32px',height:'32px',borderRadius:'50%',border:'1.5px solid #000',background:'#000',color:'#fff',fontWeight:'900',fontSize:'18px'}}>×</button>
             <h3 style={{margin:'0 0 14px',fontSize:'19px',fontWeight:'900',color:'#000'}}>{editing? 'Edit Product' : '+ Sell Product'}</h3>
             <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Product name" style={{width:'100%',padding:'14px',borderRadius:'12px',border:'2px solid #e5e7eb',marginBottom:'10px',color:'#000',background:'#f9fafb'}}/>
             <textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Description" rows={2} style={{width:'100%',padding:'14px',borderRadius:'12px',border:'2px solid #e5e7eb',marginBottom:'10px',color:'#000',background:'#f9fafb',resize:'none'}}/>
             <input value={price} onChange={e=>setPrice(e.target.value)} placeholder="Price e.g. 2800" style={{width:'100%',padding:'14px',borderRadius:'12px',border:'2px solid #e5e7eb',marginBottom:'10px',color:'#000',background:'#f9fafb'}}/>
             <input value={country} onChange={e=>setCountry(e.target.value)} placeholder="Country" style={{width:'100%',padding:'14px',borderRadius:'12px',border:'2px solid #e5e7eb',marginBottom:'10px',color:'#000',background:'#f9fafb'}}/>
             <input value={town} onChange={e=>setTown(e.target.value)} placeholder="Town" style={{width:'100%',padding:'14px',borderRadius:'12px',border:'2px solid #e5e7eb',marginBottom:'12px',color:'#000',background:'#f9fafb'}}/>
-            
             <div style={{marginBottom:'14px'}}>
               {(imgPreview||image) && <img src={imgPreview||image} style={{width:'100%',height:'150px',objectFit:'cover',borderRadius:'12px',border:'2px solid #000',marginBottom:'8px'}} alt=""/>}
               <div style={{display:'flex',gap:'8px'}}>
-                <label style={{flex:1,padding:'12px',borderRadius:'12px',border:'2px dashed #000',background:'#f0fdf4',textAlign:'center',fontWeight:'800',fontSize:'13px',color:'#000',cursor:'pointer'}}>
-                  📸 Upload Photo
-                  <input type="file" accept="image/*" onChange={handleImageUpload} style={{display:'none'}}/>
-                </label>
+                <label style={{flex:1,padding:'12px',borderRadius:'12px',border:'2px dashed #000',background:'#f0fdf4',textAlign:'center',fontWeight:'800',fontSize:'13px',color:'#000',cursor:'pointer'}}>📸 Upload Photo<input type="file" accept="image/*" onChange={handleImageUpload} style={{display:'none'}}/></label>
                 <input value={image.startsWith('data:')?'Uploaded ✓':image} onChange={e=>{setImage(e.target.value); setImgPreview('')}} placeholder="Or paste link" style={{flex:1.2,padding:'12px',borderRadius:'12px',border:'2px solid #e5e7eb',color:'#000',background:'#f9fafb',fontSize:'12px'}}/>
               </div>
             </div>
-
-            <button onClick={handlePost} style={{width:'100%',padding:'14px',borderRadius:'14px',border:'none',background:'#22c55e',color:'#fff',fontWeight:'900',fontSize:'16px',marginBottom:'12px',cursor:'pointer'}}>{editing?'Update Product':'Post Product'}</button>
-            <button onClick={resetSell} style={{width:'100%',padding:'14px',borderRadius:'14px',border:'2px solid #111',background:'linear-gradient(180deg,#ffffff,#f8fafc)',color:'#111',fontWeight:'900',fontSize:'15px',boxShadow:'0 4px 0 #111, 0 6px 12px rgba(0,0,0,0.12)',cursor:'pointer'}}>✕ Cancel</button>
+            <button onClick={handlePost} style={{width:'100%',padding:'14px',borderRadius:'14px',border:'none',background:'#22c55e',color:'#fff',fontWeight:'900',fontSize:'16px',marginBottom:'12px'}}>{editing?'Update Product':'Post Product'}</button>
+            <button onClick={resetSell} style={{width:'100%',padding:'14px',borderRadius:'14px',border:'2px solid #111',background:'#fff',color:'#111',fontWeight:'900',fontSize:'15px'}}>✕ Cancel</button>
           </div>
         </div>
       )}
-
       {showAuth && <AuthModal contact={contact} setContact={setContact} pass={pass} setPass={setPass} showPass={showPass} setShowPass={setShowPass} onLogin={onLogin} onClose={()=>setShowAuth(false)} loading={loading} />}
       {showProfile && <ProfileModal user={user} editName={editName} setEditName={setEditName} editBio={editBio} setEditBio={setEditBio} editCountry={editCountry} setEditCountry={setEditCountry} editTown={editTown} setEditTown={setEditTown} editPhone={editPhone} setEditPhone={setEditPhone} editPic={editPic} setEditPic={setEditPic} onSave={saveProfile} onClose={()=>setShowProfile(false)} myAds={products.filter(p=>p.owner===user?.email).length} loading={loading} countries={COUNTRIES} />}
     </div>
   )
-          }
+                                                    }
