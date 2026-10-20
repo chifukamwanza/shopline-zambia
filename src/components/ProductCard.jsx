@@ -1,24 +1,24 @@
 export default function ProductCard({ pr, user, onEdit, onDelete }){
-  const isMine = user && pr.owner === user.email
-  const phone = pr.phone || "260770000000"
-  
+  const phone = pr.phone || "260978000000"
+  const isMine = user && pr.owner && user.email && pr.owner.toLowerCase() === user.email.toLowerCase()
+
   return (
-    <div style={{background:'#fff',borderRadius:'16px',overflow:'hidden',boxShadow:'0 1px 4px rgba(0,0,0,0.08)',border:'1px solid #eee',display:'flex',flexDirection:'column'}}>
-      <div style={{width:'100%',height:'190px',background:'#f5f5f5'}}>
+    <div style={{background:'#fff',borderRadius:'14px',overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,0.08)',display:'flex',flexDirection:'column'}}>
+      <div style={{width:'100%',height:'180px',background:'#f5f5f5'}}>
         <img src={pr.image} alt={pr.title} style={{width:'100%',height:'100%',objectFit:'cover'}} />
       </div>
       <div style={{padding:'10px'}}>
-        <div style={{fontWeight:'700',fontSize:'14px',color:'#111',lineHeight:'1.2',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{pr.title}</div>
-        <div style={{fontWeight:'800',fontSize:'18px',color:'#16a34a',marginTop:'2px'}}>K{pr.price.toString().replace('K','').replace('k','')}</div>
-        <div style={{marginTop:'6px'}}><span style={{fontSize:'11px',background:'#eef6ff',color:'#4b5563',padding:'3px 10px',borderRadius:'20px',border:'1px solid #e5edff'}}>Cash</span></div>
+        <div style={{fontWeight:'700',fontSize:'14px',color:'#000',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{pr.title}</div>
+        <div style={{fontWeight:'900',fontSize:'18px',color:'#16a34a',marginTop:'2px'}}>K{pr.price.toString().replace(/K|k|,/g,'')}</div>
+        <div style={{marginTop:'6px'}}><span style={{fontSize:'11px',background:'#f1f5f9',color:'#475569',padding:'4px 12px',borderRadius:'20px',border:'1px solid #e2e8f0'}}>Cash</span></div>
         
-        {isMine ? (
-          <div style={{display:'flex',gap:'6px',marginTop:'10px'}}>
-            <button onClick={()=>onEdit(pr)} style={{flex:1,height:'34px',borderRadius:'10px',border:'1px solid #111827',background:'#fff',color:'#111827',fontWeight:'700',fontSize:'12px'}}>Edit</button>
-            <button onClick={()=>onDelete(pr)} style={{flex:1,height:'34px',borderRadius:'10px',border:'1px solid #fecaca',background:'#fff',color:'#ef4444',fontWeight:'700',fontSize:'12px'}}>Delete</button>
+        <a href={`https://wa.me/${phone.toString().replace(/\D/g,'')}?text=Hi, I'm interested in ${pr.title}`} target="_blank" style={{display:'block',marginTop:'10px',textAlign:'center',background:'#22c55e',color:'#fff',padding:'10px',borderRadius:'12px',fontWeight:'800',fontSize:'13px',textDecoration:'none'}}>WhatsApp</a>
+
+        {isMine && (
+          <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
+            <button onClick={()=>onEdit(pr)} style={{flex:1,height:'36px',borderRadius:'10px',border:'1.5px solid #111827',background:'#fff',color:'#111827',fontWeight:'800',fontSize:'13px'}}>Edit</button>
+            <button onClick={()=>onDelete(pr)} style={{flex:1,height:'36px',borderRadius:'10px',border:'1.5px solid #fca5a5',background:'#fff7f7',color:'#dc2626',fontWeight:'800',fontSize:'13px'}}>Delete</button>
           </div>
-        ) : (
-          <a href={`https://wa.me/${phone.replace(/\D/g,'')}?text=Hi, I'm interested in ${pr.title}`} target="_blank" style={{display:'block',marginTop:'10px',textAlign:'center',background:'#22c55e',color:'#fff',padding:'9px',borderRadius:'10px',fontWeight:'800',fontSize:'13px',textDecoration:'none'}}>WhatsApp</a>
         )}
       </div>
     </div>
