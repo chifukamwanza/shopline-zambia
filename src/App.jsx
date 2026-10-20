@@ -3,9 +3,33 @@ import ProductCard from './components/ProductCard'
 import AuthModal from './components/AuthModal'
 import ProfileModal from './components/ProfileModal'
 
-const CATS = ['All','Phones','Clothes','Electronics','Home']
-const COUNTRIES = ['Zambia','USA','South Africa','Nigeria','Kenya','Other']
-
+const CATS = ['All','Phones','Clothes','Electronics','Home','Shoes','Beauty','Cars','Property']
+const COUNTRIES = [
+'Zambia','USA','Afghanistan','Albania','Algeria','Andorra','Angola','Antigua and Barbuda','Argentina','Armenia','Australia','Austria','Azerbaijan',
+'Bahamas','Bahrain','Bangladesh','Barbados','Belarus','Belgium','Belize','Benin','Bhutan','Bolivia','Bosnia and Herzegovina','Botswana','Brazil','Brunei','Bulgaria','Burkina Faso','Burundi',
+'Cambodia','Cameroon','Canada','Cape Verde','Central African Republic','Chad','Chile','China','Colombia','Comoros','Congo','Costa Rica','Croatia','Cuba','Cyprus','Czech Republic',
+'Denmark','Djibouti','Dominica','Dominican Republic',
+'Ecuador','Egypt','El Salvador','Equatorial Guinea','Eritrea','Estonia','Eswatini','Ethiopia',
+'Fiji','Finland','France',
+'Gabon','Gambia','Georgia','Germany','Ghana','Greece','Grenada','Guatemala','Guinea','Guinea-Bissau','Guyana',
+'Haiti','Honduras','Hungary',
+'Iceland','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy',
+'Jamaica','Japan','Jordan',
+'Kazakhstan','Kenya','Kiribati','Kuwait','Kyrgyzstan',
+'Laos','Latvia','Lebanon','Lesotho','Liberia','Libya','Liechtenstein','Lithuania','Luxembourg',
+'Madagascar','Malawi','Malaysia','Maldives','Mali','Malta','Marshall Islands','Mauritania','Mauritius','Mexico','Micronesia','Moldova','Monaco','Mongolia','Montenegro','Morocco','Mozambique','Myanmar',
+'Namibia','Nauru','Nepal','Netherlands','New Zealand','Nicaragua','Niger','Nigeria','North Korea','North Macedonia','Norway',
+'Oman',
+'Pakistan','Palau','Palestine','Panama','Papua New Guinea','Paraguay','Peru','Philippines','Poland','Portugal',
+'Qatar',
+'Romania','Russia','Rwanda',
+'Saint Kitts and Nevis','Saint Lucia','Saint Vincent and the Grenadines','Samoa','San Marino','Sao Tome and Principe','Saudi Arabia','Senegal','Serbia','Seychelles','Sierra Leone','Singapore','Slovakia','Slovenia','Solomon Islands','Somalia','South Africa','South Korea','South Sudan','Spain','Sri Lanka','Sudan','Suriname','Sweden','Switzerland','Syria',
+'Taiwan','Tajikistan','Tanzania','Thailand','Togo','Tonga','Trinidad and Tobago','Tunisia','Turkey','Turkmenistan','Tuvalu',
+'Uganda','Ukraine','United Arab Emirates','United Kingdom','Uruguay','Uzbekistan',
+'Vanuatu','Vatican City','Venezuela','Vietnam',
+'Yemen',
+'Zimbabwe','Other'
+]
 const safeStorage = {
   read: (key, def) => {
     try {
@@ -120,11 +144,12 @@ export default function App(){
     setTimeout(()=>{ setUser(nu); safeStorage.write('shopline_user', nu); setLoading(false); setShowProfile(false) },500)
   }
 
- const filtered = products.filter(p=> {
-  const matchSearch = (p.title+p.description).toLowerCase().includes(search.toLowerCase())
-  const matchCat = cat==='All' || p.title.toLowerCase().includes(cat.toLowerCase()) || (p.description||'').toLowerCase().includes(cat.toLowerCase())
-  return matchSearch && matchCat
-})
+  const filtered = products.filter(p=> {
+    const matchSearch = (p.title+p.description).toLowerCase().includes(search.toLowerCase())
+    const matchCat = cat==='All' || p.title.toLowerCase().includes(cat.toLowerCase()) || (p.description||'').toLowerCase().includes(cat.toLowerCase())
+    return matchSearch && matchCat
+  })
+
   return (
     <div style={{minHeight:'100vh',background:'#f5f7f5',fontFamily:'system-ui'}}>
       <header style={{position:'sticky',top:0,zIndex:50,background:'#fff',padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',boxShadow:'0 2px 8px rgba(0,0,0,0.08)'}}>
@@ -137,8 +162,8 @@ export default function App(){
 
       <div style={{padding:'12px'}}>
         <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..." style={{width:'100%',padding:'12px 14px',borderRadius:'12px',border:'2px solid #000',marginBottom:'10px',background:'#fff',color:'#000'}}/>
-        <div style={{display:'flex',gap:'8px',overflowX:'auto',paddingBottom:'6px'}}>
-          {CATS.map(c=> <button key={c} onClick={()=>setCat(c)} style={{padding:'6px 14px',borderRadius:'999px',border:cat===c?'2px solid #000':'1px solid #ddd',background:cat===c?'#000':'#fff',color:cat===c?'#fff':'#000',fontWeight:'700',whiteSpace:'nowrap'}}>{c}</button>)}
+        <div style={{display:'flex',gap:'8px',overflowX:'auto',paddingBottom:'8px',WebkitOverflowScrolling:'touch',scrollbarWidth:'none',msOverflowStyle:'none'}}>
+          {CATS.map(c=> <button key={c} onClick={()=>setCat(c)} style={{padding:'8px 16px',borderRadius:'999px',border:cat===c?'2px solid #000':'1.5px solid #ddd',background:cat===c?'#000':'#fff',color:cat===c?'#fff':'#000',fontWeight:'700',whiteSpace:'nowrap',flexShrink:0,cursor:'pointer'}}>{c}</button>)}
         </div>
       </div>
 
@@ -178,4 +203,4 @@ export default function App(){
       {showProfile && <ProfileModal user={user} editName={editName} setEditName={setEditName} editBio={editBio} setEditBio={setEditBio} editCountry={editCountry} setEditCountry={setEditCountry} editTown={editTown} setEditTown={setEditTown} editPhone={editPhone} setEditPhone={setEditPhone} editPic={editPic} setEditPic={setEditPic} onSave={saveProfile} onClose={()=>setShowProfile(false)} myAds={products.filter(p=>p.owner===user?.email).length} loading={loading} countries={COUNTRIES} />}
     </div>
   )
-                                         }
+          }
