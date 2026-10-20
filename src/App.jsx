@@ -72,7 +72,13 @@ export default function App(){
         </div>
       </header>
 
-      <div style={{padding:'12px 14px 0'}}>
+      {/* PROFESSIONAL GLOBAL WELCOME - FIXED */}
+      <div style={{margin:'10px 12px',background:'#fff',borderRadius:'16px',padding:'14px',textAlign:'center',border:'1px solid #e5e7eb',boxShadow:'0 1px 3px rgba(0,0,0,0.05)'}}>
+        <div style={{fontSize:'16px',fontWeight:'900',color:'#111827'}}>Welcome to Shopline Global 🌍</div>
+        <div style={{fontSize:'13px',color:'#6b7280',marginTop:'4px',lineHeight:'1.4'}}>The World's Open Market — Buy & Sell Anything, Anywhere.<br/><b>100% Free • Trusted • Instant WhatsApp Connect</b></div>
+      </div>
+
+      <div style={{padding:'0 14px'}}>
         <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." style={{width:'100%',padding:'12px 18px',borderRadius:'30px',border:'1.5px solid #d1d5db',background:'#fff',color:'#000',outline:'none',fontSize:'14px'}}/>
       </div>
 
@@ -93,16 +99,13 @@ export default function App(){
             <h3 style={{margin:'0 0 14px',fontSize:'19px',fontWeight:'900'}}>{editing?'Edit Product':'+ Sell Product'}</h3>
             <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Product name" style={{width:'100%',padding:'14px',borderRadius:'12px',border:'2px solid #e5e7eb',marginBottom:'10px'}}/>
             <textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Description" rows={2} style={{width:'100%',padding:'14px',borderRadius:'12px',border:'2px solid #e5e7eb',marginBottom:'10px',resize:'none'}}/>
-            
             <select value={sellCat} onChange={e=>setSellCat(e.target.value)} style={{width:'100%',padding:'14px',borderRadius:'12px',border:'2px solid #16a34a',marginBottom:'10px',background:'#f0fdf4',fontWeight:'700',color:'#111'}}>
               <option value="">-- Choose Category --</option>
               {SELL_CATS.map(c=> <option key={c} value={c}>{c}</option>)}
             </select>
-
             <select value={country} onChange={e=>setCountry(e.target.value)} style={{width:'100%',padding:'14px',borderRadius:'12px',border:'2px solid #2563eb',marginBottom:'10px',background:'#eff6ff',fontWeight:'700',color:'#111'}}>
               {COUNTRIES.map(c=> <option key={c} value={c}>{c}</option>)}
             </select>
-
             <input value={price} onChange={e=>setPrice(e.target.value)} placeholder="Price e.g. 2800" style={{width:'100%',padding:'14px',borderRadius:'12px',border:'2px solid #e5e7eb',marginBottom:'10px'}}/>
             <input value={town} onChange={e=>setTown(e.target.value)} placeholder="Town e.g. Chipata" style={{width:'100%',padding:'14px',borderRadius:'12px',border:'2px solid #e5e7eb',marginBottom:'12px'}}/>
             <div style={{marginBottom:'14px'}}>{(imgPreview||image) && <img src={imgPreview||image} style={{width:'100%',height:'150px',objectFit:'cover',borderRadius:'12px',border:'2px solid #000',marginBottom:'8px'}} alt=""/>}<label style={{display:'block',padding:'12px',borderRadius:'12px',border:'2px dashed #000',background:'#f0fdf4',textAlign:'center',fontWeight:'800',cursor:'pointer'}}>📸 Upload Photo<input type="file" accept="image/*" onChange={handleImageUpload} style={{display:'none'}}/></label></div>
@@ -114,4 +117,4 @@ export default function App(){
       {showProfile && <ProfileModal user={user} editName={editName} setEditName={setEditName} editBio={editBio} setEditBio={setEditBio} editCountry={editCountry} setEditCountry={setEditCountry} editTown={editTown} setEditTown={setEditTown} editPhone={editPhone} setEditPhone={setEditPhone} editPic={editPic} setEditPic={setEditPic} onSave={saveProfile} onClose={()=>setShowProfile(false)} myAds={products.filter(p=>p.owner===user?.email).length} loading={loading} countries={COUNTRIES} />}
     </div>
   )
-  }
+    }
