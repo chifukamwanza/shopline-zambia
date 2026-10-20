@@ -1,6 +1,5 @@
-export defauexport default function ProductCard({ pr, cats, user, onEdit, onDelete }){
+export default function ProductCard({ pr, cats, user, onEdit, onDelete }){
   const isMine = user?.email && pr.owner && pr.owner.toLowerCase() === user.email.toLowerCase()
-  const catIcon = cats.find(c=>c.id===pr.cat)?.i || '📦'
   
   return (
     <div style={{background:'#fff',borderRadius:'14px',overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,0.08)',position:'relative'}}>
@@ -22,4 +21,4 @@ export defauexport default function ProductCard({ pr, cats, user, onEdit, onDele
       </div>
     </div>
   )
-}
+                     }
