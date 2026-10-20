@@ -123,37 +123,51 @@ export default function App(){
   }
 
   const deleteProduct = async (product) => {
+    if(!user?.email) return alert('Login first');
+    if(product.owner && product.owner.toLowerCase() !== user.email.toLowerCase()){
+      return alert('You can only delete your own products');
+    }
     if(!confirm(`Delete ${product.title}?`)) return;
     setProducts(products.filter(pr => pr.id !== product.id));
     try{
-      const { error } = await supabase.from('products').delete().eq('id', product.id);
-      if(error) alert('Delete failed: '+error.message);
-      else alert('Deleted!');
+      const { error } = await supabase.from('products').delete().eq('id', product.id).eq('owner_email', user.email);
+      if(error) throw error;
+      alert('Deleted!');
     }catch(e){ alert(e.message) }
   }
 
   const sell=async()=>{
     if(!t||!p) return alert('Add title & price');
-    if(!user) return alert('Login first');
+    if(!user?.email) return alert('Login first');
     setLoading(true);
 
     if(editingProduct){
+      if(editingProduct.owner && editingProduct.owner.toLowerCase() !== user.email.toLowerCase()){
+        alert('You can only edit your own products');
+        setLoading(false);
+        return;
+      }
       try{
-        const updatedData = { title: t, name: t, description: d, price: p, location: loc, country: nCountry, category: nc, image_url: img, owner_email: user.email, seller_id: user.id };
-        const { error } = await supabase.from('products').update(updatedData).eq('id', editingProduct.id);
+        const updatedData = { 
+          title: t, name: t, description: d, price: p, location: loc, 
+          country: nCountry, category: nc, image_url: img, image: img
+        };
+        const { error } = await supabase.from('products').update(updatedData).eq('id', editingProduct.id).eq('owner_email', user.email);
         if(error) throw error;
-        setProducts(products.map(pr => pr.id===editingProduct.id ? {...pr, title:t, desc:d, price:p.startsWith('K')?p:'K'+p, location:loc, country:nCountry, cat:nc, image:img, owner:user.email} : pr));
+        setProducts(products.map(pr => pr.id===editingProduct.id ? {...pr, title:t, desc:d, price:p.startsWith('K')?p:'K'+p, location:loc, country:nCountry, cat:nc, image:img} : pr));
         alert('Updated!');
       }catch(e){ alert('Update failed: '+e.message) }
       setEditingProduct(null);
     } else {
-      const np={id:Date.now(),title:t,desc:d,price:p.startsWith('K')?p:'K'+p,location:loc||editTown||'Global',country:nCountry||editCountry,cat:nc,image:img,owner:user?.email, seller_id: user?.id};
+      const np={id:Date.now(),title:t,desc:d,price:p.startsWith('K')?p:'K'+p,location:loc||editTown||'Global',country:nCountry||editCountry,cat:nc,image:img,owner:user?.email};
       setProducts([np,...products]);
       try{ 
-        await supabase.from('products').insert([{ title: t, name: t, description: d, price: p, location: loc, country: nCountry, category: nc, image_url: img, owner_email: user?.email, seller_id: user?.id }]);
-      }catch(e){ console.log(e) }
+        await supabase.from('products').insert([{ 
+          title: t, name: t, description: d, price: p, location: loc, country: nCountry, 
+          category: nc, image_url: img, image: img, owner_email: user.email 
+        }]);
+      }catch(e){ console.log(e); alert('Insert failed: '+e.message) }
     }
-
     setLoading(false);
     setT(''); setD(''); setP(''); setLoc(''); setImg(''); setShowSell(false); setEditingProduct(null);
   }
@@ -176,4 +190,4 @@ export default function App(){
       {showSell && <SellModal t={t} setT={setT} d={d} setD={setD} p={p} setP={setP} loc={loc} setLoc={setLoc} nc={nc} setNc={setNc} nCountry={nCountry} setNCountry={setNCountry} img={img} setImg={setImg} cats={cats} countries={countries} onSell={sell} onClose={()=>{setShowSell(false);setEditingProduct(null)}} editingProduct={editingProduct} />}
     </div>
   )
-                      }
+      }
