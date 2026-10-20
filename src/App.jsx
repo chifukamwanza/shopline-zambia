@@ -149,8 +149,13 @@ export default function App(){
       }
       try{
         const updatedData = { 
-          title: t, name: t, description: d, price: p, location: loc, 
-          country: nCountry, category: nc, image_url: img, image: img
+          title: t, 
+          description: d, 
+          price: p, 
+          location: loc, 
+          country: nCountry, 
+          category: nc, 
+          image_url: img
         };
         const { error } = await supabase.from('products').update(updatedData).eq('id', editingProduct.id).eq('owner_email', user.email);
         if(error) throw error;
@@ -163,8 +168,14 @@ export default function App(){
       setProducts([np,...products]);
       try{ 
         await supabase.from('products').insert([{ 
-          title: t, name: t, description: d, price: p, location: loc, country: nCountry, 
-          category: nc, image_url: img, image: img, owner_email: user.email 
+          title: t, 
+          description: d, 
+          price: p, 
+          location: loc, 
+          country: nCountry, 
+          category: nc, 
+          image_url: img, 
+          owner_email: user.email 
         }]);
       }catch(e){ console.log(e); alert('Insert failed: '+e.message) }
     }
@@ -190,4 +201,4 @@ export default function App(){
       {showSell && <SellModal t={t} setT={setT} d={d} setD={setD} p={p} setP={setP} loc={loc} setLoc={setLoc} nc={nc} setNc={setNc} nCountry={nCountry} setNCountry={setNCountry} img={img} setImg={setImg} cats={cats} countries={countries} onSell={sell} onClose={()=>{setShowSell(false);setEditingProduct(null)}} editingProduct={editingProduct} />}
     </div>
   )
-      }
+                   }
