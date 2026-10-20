@@ -20,7 +20,6 @@ export default function App(){
   const [cat, setCat] = useState('All')
   const [editing, setEditing] = useState(null)
 
-  // sell form
   const [title, setTitle] = useState('')
   const [desc, setDesc] = useState('')
   const [price, setPrice] = useState('')
@@ -29,13 +28,11 @@ export default function App(){
   const [image, setImage] = useState('')
   const [imgPreview, setImgPreview] = useState('')
   
-  // auth
   const [contact, setContact] = useState('')
   const [pass, setPass] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  // profile edit
   const [editName, setEditName] = useState('')
   const [editBio, setEditBio] = useState('')
   const [editCountry, setEditCountry] = useState('Zambia')
@@ -160,8 +157,8 @@ export default function App(){
               </div>
             </div>
 
-            <button onClick={handlePost} style={{width:'100%',padding:'14px',borderRadius:'14px',border:'none',background:'#22c55e',color:'#fff',fontWeight:'900',fontSize:'16px',marginBottom:'10px',cursor:'pointer'}}>{editing?'Update Product':'Post Product'}</button>
-            <button onClick={resetSell} style={{width:'100%',padding:'14px',borderRadius:'14px',border:'2px solid #000',background:'#fff',color:'#000',fontWeight:'900',boxShadow:'0 3px 0 #000',cursor:'pointer'}}>Cancel</button>
+            <button onClick={handlePost} style={{width:'100%',padding:'14px',borderRadius:'14px',border:'none',background:'#22c55e',color:'#fff',fontWeight:'900',fontSize:'16px',marginBottom:'12px',cursor:'pointer'}}>{editing?'Update Product':'Post Product'}</button>
+            <button onClick={resetSell} style={{width:'100%',padding:'14px',borderRadius:'14px',border:'2px solid #111',background:'linear-gradient(180deg,#ffffff,#f8fafc)',color:'#111',fontWeight:'900',fontSize:'15px',letterSpacing:'0.3px',boxShadow:'0 4px 0 #111, 0 6px 12px rgba(0,0,0,0.12)',cursor:'pointer'}}>✕ Cancel</button>
           </div>
         </div>
       )}
@@ -170,4 +167,4 @@ export default function App(){
       {showProfile && <ProfileModal user={user} editName={editName} setEditName={setEditName} editBio={editBio} setEditBio={setEditBio} editCountry={editCountry} setEditCountry={setEditCountry} editTown={editTown} setEditTown={setEditTown} editPhone={editPhone} setEditPhone={setEditPhone} editPic={editPic} setEditPic={setEditPic} onSave={saveProfile} onClose={()=>setShowProfile(false)} myAds={products.filter(p=>p.owner===user?.email).length} loading={loading} countries={COUNTRIES} />}
     </div>
   )
-                  }
+          }
