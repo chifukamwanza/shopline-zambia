@@ -1,74 +1,26 @@
-import { useState } from 'react'
-import './Products.css'
-
-export default function Products() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filterCategory, setFilterCategory] = useState('all')
-
-  const allProducts = [
-    { id: 1, name: 'Handmade Basket', price: 150, category: 'crafts', seller: 'Local Crafts', image: '🧺' },
-    { id: 2, name: 'Organic Coffee', price: 80, category: 'food', seller: 'Kafue Farm', image: '☕' },
-    { id: 3, name: 'Beaded Necklace', price: 200, category: 'crafts', seller: 'Art Collective', image: '📿' },
-    { id: 4, name: 'Shea Butter', price: 120, category: 'beauty', seller: 'Natural Beauty', image: '🧴' },
-    { id: 5, name: 'Honey Jar', price: 90, category: 'food', seller: 'Bee Farm', image: '🍯' },
-    { id: 6, name: 'Leather Purse', price: 280, category: 'fashion', seller: 'Leather Art', image: '👜' },
-    { id: 7, name: 'Traditional Cloth', price: 350, category: 'fashion', seller: 'Textile Masters', image: '🧵' },
-    { id: 8, name: 'Wooden Carvings', price: 450, category: 'crafts', seller: 'Wood Artisans', image: '🪵' },
-  ]
-
-  const categories = ['all', 'crafts', 'food', 'beauty', 'fashion']
-
-  const filteredProducts = allProducts.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = filterCategory === 'all' || product.category === filterCategory
-    return matchesSearch && matchesCategory
-  })
-
+export default function ProductCard({ pr, cats, isOwner, onEdit, onDelete }){
   return (
-    <div className="products-page">
-      <h1>Browse Products</h1>
+    <div style={{background:'#fff',borderRadius:'12px',overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,0.08)',position:'relative'}}>
+      <img 
+        src={pr.image || 'https://via.placeholder.com/300x200?text=No+Image'} 
+        alt={pr.title} 
+        style={{width:'100%',height:'180px',objectFit:'cover',background:'#f1f5f9'}} 
+      />
       
-      <div className="filters">
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
+      {/* EDIT BUTTON - ONLY YOUR PRODUCTS */}
+      {isOwner && (
+        <div style={{position:'absolute',top:'8px',right:'8px',display:'flex',gap:'6px'}}>
+          <button onClick={()=>onEdit(pr)} style={{background:'#fff',border:'1px solid #eee',borderRadius:'20px',padding:'6px 10px',fontSize:'12px',fontWeight:'bold',boxShadow:'0 2px 5px rgba(0,0,0,0.2)',cursor:'pointer'}}>✏️ Edit</button>
+          <button onClick={()=>onDelete(pr)} style={{background:'#ff4444',color:'#fff',border:'none',borderRadius:'20px',padding:'6px 10px',fontSize:'12px',fontWeight:'bold',cursor:'pointer'}}>🗑️</button>
         </div>
-        
-        <div className="category-filters">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              className={`filter-btn ${filterCategory === cat ? 'active' : ''}`}
-              onClick={() => setFilterCategory(cat)}
-            >
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
 
-      <div className="products-grid">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map(product => (
-            <div key={product.id} className="product-card">
-              <div className="product-image">{product.image}</div>
-              <h3>{product.name}</h3>
-              <p className="seller">by {product.seller}</p>
-              <p className="price">ZMW {product.price}</p>
-              <button className="btn btn-primary">Add to Cart</button>
-            </div>
-          ))
-        ) : (
-          <div className="no-products">
-            <p>No products found. Try adjusting your filters.</p>
-          </div>
-        )}
+      <div style={{padding:'10px'}}>
+        <div style={{fontWeight:'bold',fontSize:'14px',lineHeight:'1.2',minHeight:'34px'}}>{pr.title}</div>
+        <div style={{fontSize:'12px',color:'#666'}}>- Buy in {pr.country}</div>
+        <div style={{color:'#00a651',fontWeight:'bold',fontSize:'16px',marginTop:'4px'}}>{pr.price?.toString().startsWith('K') ? pr.price : 'K'+pr.price}</div>
+        <div style={{fontSize:'11px',color:'#888',marginTop:'2px'}}>{pr.location} - {pr.country} - {pr.cat}</div>
       </div>
     </div>
   )
-}
+        }
