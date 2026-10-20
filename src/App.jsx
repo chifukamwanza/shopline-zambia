@@ -6,7 +6,6 @@ import ProfileModal from './components/ProfileModal'
 const CATS = ['All','Phones','Clothes','Electronics','Home']
 const COUNTRIES = ['Zambia','USA','South Africa','Nigeria','Kenya','Other']
 
-// SAFE STORAGE LIKE BEFORE - embedded, no import needed
 const safeStorage = {
   read: (key, def) => {
     try {
@@ -53,7 +52,13 @@ export default function App(){
   const [editPic, setEditPic] = useState('')
 
   useEffect(()=>{ safeStorage.write('shopline_products', products) },[products])
-  useEffect(()=>{ if(user) safeStorage.write('shopline_user', user) else localStorage.removeItem('shopline_user') },[user])
+  useEffect(()=>{ 
+    if(user){ 
+      safeStorage.write('shopline_user', user) 
+    } else { 
+      try{ localStorage.removeItem('shopline_user') }catch{} 
+    } 
+  },[user])
 
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0]
@@ -170,4 +175,4 @@ export default function App(){
       {showProfile && <ProfileModal user={user} editName={editName} setEditName={setEditName} editBio={editBio} setEditBio={setEditBio} editCountry={editCountry} setEditCountry={setEditCountry} editTown={editTown} setEditTown={setEditTown} editPhone={editPhone} setEditPhone={setEditPhone} editPic={editPic} setEditPic={setEditPic} onSave={saveProfile} onClose={()=>setShowProfile(false)} myAds={products.filter(p=>p.owner===user?.email).length} loading={loading} countries={COUNTRIES} />}
     </div>
   )
-                }
+                                         }
