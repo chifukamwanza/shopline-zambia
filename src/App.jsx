@@ -27,7 +27,7 @@ const allCountriesFilter = ['All Countries', ...countries]
 
 export default function App(){
   const [user,setUser]=useState(()=>safeStorage.read('shopline_user'))
-  const [products,setProducts]=useState([]) // FIX: Start empty, load from Supabase
+  const [products,setProducts]=useState([])
   const [search,setSearch]=useState('')
   const [country,setCountry]=useState('All Countries')
   const [cat,setCat]=useState('All')
@@ -45,6 +45,7 @@ export default function App(){
   const [t,setT]=useState(''); const [d,setD]=useState(''); const [p,setP]=useState('')
   const [loc,setLoc]=useState(''); const [nc,setNc]=useState('Phones'); const [nCountry,setNCountry]=useState('Zambia')
   const [img,setImg]=useState('')
+  const [editingProduct,setEditingProduct]=useState(null) // FIX 2
 
   // Profile edit
   const [editName,setEditName]=useState(''); const [editBio,setEditBio]=useState('')
@@ -55,22 +56,17 @@ export default function App(){
   const [verifyInput,setVerifyInput]=useState(''); const [generatedCode,setGeneratedCode]=useState('')
   const [pendingUser,setPendingUser]=useState(null)
 
-  // ===== FIX: LOAD REAL PRODUCTS FROM SUPABASE =====
+  // LOAD REAL PRODUCTS
   useEffect(()=>{
     async function fetchProducts(){
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if(error){
-        console.error('Supabase fetch error:', error.message);
-      } else if(data){
+      const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+      if(error){ console.error(error.message) }
+      else if(data){
         const mapped = data.map(pr => ({
           id: pr.id,
           title: pr.title || pr.name || 'Untitled',
-          desc: pr.description || pr.desc || '',
-          price: pr.price ? (pr.price.toString().startsWith('K') ? pr.price : 'K'+pr.price) : '',
+          desc: pr.description || '',
+          price: pr.price || '',
           location: pr.location || 'Zambia',
           country: pr.country || 'Zambia',
           cat: pr.category || 'All',
@@ -79,13 +75,11 @@ export default function App(){
           seller_id: pr.seller_id || ''
         }));
         setProducts(mapped);
-        console.log('Loaded', mapped.length, 'products from Supabase');
       }
     }
     fetchProducts();
   }, [])
 
-  // Auth logic (kept from your file)
   const login=async()=>{
     if(!contact||!pass) return alert('Enter contact & password');
     setLoading(true);
@@ -125,20 +119,52 @@ export default function App(){
     setShowProfile(false)
   }
 
-  // FIXED SELL FUNCTION
+  // ===== FIX 2: EDIT & DELETE FUNCTIONS =====
+  const startEdit = (product) => {
+    setT(product.title); setD(product.desc); setP(product.price.toString().replace('K',''));
+    setLoc(product.location); setNCountry(product.country); setNc(product.cat); setImg(product.image);
+    setEditingProduct(product);
+    setShowSell(true);
+  }
+
+  const deleteProduct = async (product) => {
+    if(!confirm(`Delete ${product.title}?`)) return;
+    setProducts(products.filter(pr => pr.id !== product.id));
+    try{
+      const { error } = await supabase.from('products').delete().eq('id', product.id);
+      if(error) alert('Delete failed: '+error.message);
+      else alert('Deleted!');
+    }catch(e){ alert(e.message) }
+  }
+
+  // ===== FIX 3: SELL HANDLES BOTH CREATE AND UPDATE =====
   const sell=async()=>{
     if(!t||!p) return alert('Add title & price');
     if(!user) return alert('Login first');
-    const np={id:Date.now(),title:t,desc:d,price:p.startsWith('K')?p:'K'+p,location:loc||editTown||'Global',country:nCountry||editCountry,cat:nc,image:img,owner:user?.email, seller_id: user?.id};
-    setProducts([np,...products]);
-    try{ 
-      const { error } = await supabase.from('products').insert([{
-        title: t, name: t, description: d, price: p, location: loc, country: nCountry, 
-        category: nc, image_url: img, owner_email: user?.email, seller_id: user?.id
-      }]);
-      if(error) console.log('Insert error', error.message);
-    }catch(e){ console.log(e) }
-    setT(''); setD(''); setP(''); setLoc(''); setImg(''); setShowSell(false)
+    setLoading(true);
+
+    if(editingProduct){
+      // UPDATE MODE
+      try{
+        const updatedData = { title: t, name: t, description: d, price: p, location: loc, country: nCountry, category: nc, image_url: img };
+        const { error } = await supabase.from('products').update(updatedData).eq('id', editingProduct.id);
+        if(error) throw error;
+        setProducts(products.map(pr => pr.id===editingProduct.id ? {...pr, title:t, desc:d, price:p.startsWith('K')?p:'K'+p, location:loc, country:nCountry, cat:nc, image:img} : pr));
+        alert('Updated!');
+      }catch(e){ alert('Update failed: '+e.message) }
+      setEditingProduct(null);
+    } else {
+      // CREATE MODE
+      const np={id:Date.now(),title:t,desc:d,price:p.startsWith('K')?p:'K'+p,location:loc||editTown||'Global',country:nCountry||editCountry,cat:nc,image:img,owner:user?.email, seller_id: user?.id};
+      setProducts([np,...products]);
+      try{ 
+        const { error } = await supabase.from('products').insert([{ title: t, name: t, description: d, price: p, location: loc, country: nCountry, category: nc, image_url: img, owner_email: user?.email, seller_id: user?.id }]);
+        if(error) console.log('Insert error', error.message);
+      }catch(e){ console.log(e) }
+    }
+
+    setLoading(false);
+    setT(''); setD(''); setP(''); setLoc(''); setImg(''); setShowSell(false); setEditingProduct(null);
   }
 
   let filtered=cat==='All'?products:cat==='Trending'?products.slice(0,8):products.filter(x=>x.cat===cat)
@@ -150,13 +176,14 @@ export default function App(){
     <div style={{minHeight:'100vh',background:'#f8fafc',fontFamily:'Arial'}}>
       <Header user={user} search={search} setSearch={setSearch} country={country} setCountry={setCountry} allCountriesFilter={allCountriesFilter} cat={cat} setCat={setCat} cats={cats} setShowSell={setShowSell} setShowProfile={setShowProfile} setShowLogin={setShowLogin} editCountry={editCountry} editPic={editPic} />
       <div style={{padding:'10px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',maxWidth:'700px',margin:'0 auto'}}>
-        {filtered.map(pr=> <ProductCard key={pr.id} pr={pr} cats={cats} />)}
+        {/* FIX 4 */}
+        {filtered.map(pr=> <ProductCard key={pr.id} pr={pr} cats={cats} isOwner={pr.owner===user?.email} onEdit={startEdit} onDelete={deleteProduct} />)}
         {filtered.length===0 && <div style={{gridColumn:'span 2',textAlign:'center',padding:'30px',background:'#fff',borderRadius:'12px',color:'#888'}}>No products found in {country} - {cat}<br/>Be first to post!</div>}
       </div>
       {showProfile && <ProfileModal user={user} editName={editName} setEditName={setEditName} editBio={editBio} setEditBio={setEditBio} editCountry={editCountry} setEditCountry={setEditCountry} editTown={editTown} setEditTown={setEditTown} editPhone={editPhone} setEditPhone={setEditPhone} editPic={editPic} setEditPic={setEditPic} onSave={updateProfile} onClose={()=>setShowProfile(false)} myAds={myAds} loading={loading} />}
       {showLogin && <AuthModal contact={contact} setContact={setContact} pass={pass} setPass={setPass} showPass={showPass} setShowPass={setShowPass} onLogin={login} onClose={()=>setShowLogin(false)} loading={loading} />}
       {showVerify && <VerifyModal pendingUser={pendingUser} generatedCode={generatedCode} verifyInput={verifyInput} setVerifyInput={setVerifyInput} onConfirm={confirmVerify} onBack={()=>{setShowVerify(false);setShowLogin(true)}} loading={loading} />}
-      {showSell && <SellModal t={t} setT={setT} d={d} setD={setD} p={p} setP={setP} loc={loc} setLoc={setLoc} nc={nc} setNc={setNc} nCountry={nCountry} setNCountry={setNCountry} img={img} setImg={setImg} cats={cats} countries={countries} onSell={sell} onClose={()=>setShowSell(false)} />}
+      {showSell && <SellModal t={t} setT={setT} d={d} setD={setD} p={p} setP={setP} loc={loc} setLoc={setLoc} nc={nc} setNc={setNc} nCountry={nCountry} setNCountry={setNCountry} img={img} setImg={setImg} cats={cats} countries={countries} onSell={sell} onClose={()=>{setShowSell(false);setEditingProduct(null)}} editingProduct={editingProduct} />}
     </div>
   )
-                   }
+   }
