@@ -80,7 +80,7 @@ export default function App(){
     if(!contact||!pass) return alert('Enter contact & password');
     setLoading(true);
     try{
-      const { data, error } = await supabase.from('users').select('*').eq('email', contact).single();
+      const { data, error } = await supabase.from('users').select('*').or(`email.eq.${contact},phone.eq.${contact}`).single();
       if(error || !data) throw new Error('User not found');
       if(data.password !== pass) throw new Error('Wrong password');
       safeStorage.write('shopline_user', data);
@@ -186,7 +186,7 @@ export default function App(){
   let filtered=cat==='All'?products:cat==='Trending'?products.slice(0,8):products.filter(x=>x.cat===cat)
   if(country!=='All Countries') filtered=filtered.filter(x=>x.country===country)
   if(search) filtered=filtered.filter(x=>x.title.toLowerCase().includes(search.toLowerCase()))
-  const myAds=products.filter(pr=>pr.owner===user?.email)
+  const myAds=products.filter(pr=> pr.owner && user?.email && pr.owner.toLowerCase()===user.email.toLowerCase())
 
   return (
     <div style={{minHeight:'100vh',background:'#f8fafc',fontFamily:'Arial'}}>
@@ -195,10 +195,10 @@ export default function App(){
         {filtered.map(pr=> <ProductCard key={pr.id} pr={pr} cats={cats} user={user} onEdit={startEdit} onDelete={deleteProduct} />)}
         {filtered.length===0 && <div style={{gridColumn:'span 2',textAlign:'center',padding:'30px',background:'#fff',borderRadius:'12px',color:'#888'}}>No products found in {country} - {cat}<br/>Be first to post!</div>}
       </div>
-      {showProfile && <ProfileModal user={user} editName={editName} setEditName={setEditName} editBio={editBio} setEditBio={setEditBio} editCountry={editCountry} setEditCountry={setEditCountry} editTown={editTown} setEditTown={setEditTown} editPhone={editPhone} setEditPhone={setEditPhone} editPic={editPic} setEditPic={setEditPic} onSave={updateProfile} onClose={()=>setShowProfile(false)} myAds={myAds} loading={loading} />}
+      {showProfile && <ProfileModal user={user} editName={editName} setEditName={setEditName} editBio={editBio} setEditBio={setEditBio} editCountry={editCountry} setEditCountry={setEditCountry} editTown={editTown} setEditTown={setEditTown} editPhone={editPhone} setEditPhone={setEditPhone} editPic={editPic} setEditPic={setEditPic} onSave={updateProfile} onClose={()=>setShowProfile(false)} myAds={myAds} loading={loading} countries={countries} />}
       {showLogin && <AuthModal contact={contact} setContact={setContact} pass={pass} setPass={setPass} showPass={showPass} setShowPass={setShowPass} onLogin={login} onClose={()=>setShowLogin(false)} loading={loading} />}
       {showVerify && <VerifyModal pendingUser={pendingUser} generatedCode={generatedCode} verifyInput={verifyInput} setVerifyInput={setVerifyInput} onConfirm={confirmVerify} onBack={()=>{setShowVerify(false);setShowLogin(true)}} loading={loading} />}
       {showSell && <SellModal t={t} setT={setT} d={d} setD={setD} p={p} setP={setP} loc={loc} setLoc={setLoc} nc={nc} setNc={setNc} nCountry={nCountry} setNCountry={setNCountry} img={img} setImg={setImg} cats={cats} countries={countries} onSell={sell} onClose={()=>{setShowSell(false);setEditingProduct(null)}} editingProduct={editingProduct} />}
     </div>
   )
-                   }
+        }
