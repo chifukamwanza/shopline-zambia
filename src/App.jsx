@@ -120,8 +120,11 @@ export default function App(){
     setTimeout(()=>{ setUser(nu); safeStorage.write('shopline_user', nu); setLoading(false); setShowProfile(false) },500)
   }
 
-  const filtered = products.filter(p=> (p.title+p.description).toLowerCase().includes(search.toLowerCase()))
-
+ const filtered = products.filter(p=> {
+  const matchSearch = (p.title+p.description).toLowerCase().includes(search.toLowerCase())
+  const matchCat = cat==='All' || p.title.toLowerCase().includes(cat.toLowerCase()) || (p.description||'').toLowerCase().includes(cat.toLowerCase())
+  return matchSearch && matchCat
+})
   return (
     <div style={{minHeight:'100vh',background:'#f5f7f5',fontFamily:'system-ui'}}>
       <header style={{position:'sticky',top:0,zIndex:50,background:'#fff',padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',boxShadow:'0 2px 8px rgba(0,0,0,0.08)'}}>
