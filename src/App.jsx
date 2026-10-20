@@ -41,22 +41,18 @@ export default function App(){
   const [showPass,setShowPass]=useState(false)
   const [loading,setLoading]=useState(false)
   
-  // Sell form
   const [t,setT]=useState(''); const [d,setD]=useState(''); const [p,setP]=useState('')
   const [loc,setLoc]=useState(''); const [nc,setNc]=useState('Phones'); const [nCountry,setNCountry]=useState('Zambia')
   const [img,setImg]=useState('')
-  const [editingProduct,setEditingProduct]=useState(null) // FIX 2
+  const [editingProduct,setEditingProduct]=useState(null)
 
-  // Profile edit
   const [editName,setEditName]=useState(''); const [editBio,setEditBio]=useState('')
   const [editCountry,setEditCountry]=useState('Zambia'); const [editTown,setEditTown]=useState('')
   const [editPhone,setEditPhone]=useState(''); const [editPic,setEditPic]=useState('')
   
-  // Verify
   const [verifyInput,setVerifyInput]=useState(''); const [generatedCode,setGeneratedCode]=useState('')
   const [pendingUser,setPendingUser]=useState(null)
 
-  // LOAD REAL PRODUCTS
   useEffect(()=>{
     async function fetchProducts(){
       const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
@@ -119,7 +115,6 @@ export default function App(){
     setShowProfile(false)
   }
 
-  // ===== FIX 2: EDIT & DELETE FUNCTIONS =====
   const startEdit = (product) => {
     setT(product.title); setD(product.desc); setP(product.price.toString().replace('K',''));
     setLoc(product.location); setNCountry(product.country); setNc(product.cat); setImg(product.image);
@@ -137,29 +132,25 @@ export default function App(){
     }catch(e){ alert(e.message) }
   }
 
-  // ===== FIX 3: SELL HANDLES BOTH CREATE AND UPDATE =====
   const sell=async()=>{
     if(!t||!p) return alert('Add title & price');
     if(!user) return alert('Login first');
     setLoading(true);
 
     if(editingProduct){
-      // UPDATE MODE
       try{
-        const updatedData = { title: t, name: t, description: d, price: p, location: loc, country: nCountry, category: nc, image_url: img };
+        const updatedData = { title: t, name: t, description: d, price: p, location: loc, country: nCountry, category: nc, image_url: img, owner_email: user.email, seller_id: user.id };
         const { error } = await supabase.from('products').update(updatedData).eq('id', editingProduct.id);
         if(error) throw error;
-        setProducts(products.map(pr => pr.id===editingProduct.id ? {...pr, title:t, desc:d, price:p.startsWith('K')?p:'K'+p, location:loc, country:nCountry, cat:nc, image:img} : pr));
+        setProducts(products.map(pr => pr.id===editingProduct.id ? {...pr, title:t, desc:d, price:p.startsWith('K')?p:'K'+p, location:loc, country:nCountry, cat:nc, image:img, owner:user.email} : pr));
         alert('Updated!');
       }catch(e){ alert('Update failed: '+e.message) }
       setEditingProduct(null);
     } else {
-      // CREATE MODE
       const np={id:Date.now(),title:t,desc:d,price:p.startsWith('K')?p:'K'+p,location:loc||editTown||'Global',country:nCountry||editCountry,cat:nc,image:img,owner:user?.email, seller_id: user?.id};
       setProducts([np,...products]);
       try{ 
-        const { error } = await supabase.from('products').insert([{ title: t, name: t, description: d, price: p, location: loc, country: nCountry, category: nc, image_url: img, owner_email: user?.email, seller_id: user?.id }]);
-        if(error) console.log('Insert error', error.message);
+        await supabase.from('products').insert([{ title: t, name: t, description: d, price: p, location: loc, country: nCountry, category: nc, image_url: img, owner_email: user?.email, seller_id: user?.id }]);
       }catch(e){ console.log(e) }
     }
 
@@ -176,8 +167,7 @@ export default function App(){
     <div style={{minHeight:'100vh',background:'#f8fafc',fontFamily:'Arial'}}>
       <Header user={user} search={search} setSearch={setSearch} country={country} setCountry={setCountry} allCountriesFilter={allCountriesFilter} cat={cat} setCat={setCat} cats={cats} setShowSell={setShowSell} setShowProfile={setShowProfile} setShowLogin={setShowLogin} editCountry={editCountry} editPic={editPic} />
       <div style={{padding:'10px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',maxWidth:'700px',margin:'0 auto'}}>
-        {/* FIX 4 */}
-        {filtered.map(pr=> <ProductCard key={pr.id} pr={pr} cats={cats} isOwner={pr.owner===user?.email} onEdit={startEdit} onDelete={deleteProduct} />)}
+        {filtered.map(pr=> <ProductCard key={pr.id} pr={pr} cats={cats} user={user} onEdit={startEdit} onDelete={deleteProduct} />)}
         {filtered.length===0 && <div style={{gridColumn:'span 2',textAlign:'center',padding:'30px',background:'#fff',borderRadius:'12px',color:'#888'}}>No products found in {country} - {cat}<br/>Be first to post!</div>}
       </div>
       {showProfile && <ProfileModal user={user} editName={editName} setEditName={setEditName} editBio={editBio} setEditBio={setEditBio} editCountry={editCountry} setEditCountry={setEditCountry} editTown={editTown} setEditTown={setEditTown} editPhone={editPhone} setEditPhone={setEditPhone} editPic={editPic} setEditPic={setEditPic} onSave={updateProfile} onClose={()=>setShowProfile(false)} myAds={myAds} loading={loading} />}
@@ -186,4 +176,4 @@ export default function App(){
       {showSell && <SellModal t={t} setT={setT} d={d} setD={setD} p={p} setP={setP} loc={loc} setLoc={setLoc} nc={nc} setNc={setNc} nCountry={nCountry} setNCountry={setNCountry} img={img} setImg={setImg} cats={cats} countries={countries} onSell={sell} onClose={()=>{setShowSell(false);setEditingProduct(null)}} editingProduct={editingProduct} />}
     </div>
   )
-   }
+                      }
